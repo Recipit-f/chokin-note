@@ -968,16 +968,31 @@ budgets: [
 history: []
 };
 }
+function getDemoState() {
+const d = getDefaultState();
+d.bankBalance = 150000;
+d.goals[0].savedAmount = 35000; d.goals[1].savedAmount = 5380;
+d.budgets[0].spent = 2000; d.budgets[1].spent = 4500; d.budgets[2].spent = 1200;
+d.history = [
+{ id: 'd3', type: 'spend', title: '外食・カフェ代（ランチ）', amount: 2000, date: 'デモ', goalId: null, budgetId: 'b1' },
+{ id: 'd2', type: 'save', title: '🍽️ 外食貯金（端数貯金）', amount: 5380, date: 'デモ', goalId: 'g2', budgetId: null },
+{ id: 'd1', type: 'save', title: '✈️ 旅行貯金（先取り）', amount: 35000, date: 'デモ', goalId: 'g1', budgetId: null }
+];
+return d;
+}
 let state = getDefaultState();
+let isDemo = false;
 function saveState() {
+if (isDemo) { updateSyncBadge('👀 デモ表示中（ガイド後にスタート）', 'bg-amber-400'); return; }
 try { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state)); updateSyncBadge('📱 端末内に自動保存済み', 'bg-emerald-500'); }
 catch (e) { updateSyncBadge('保存できませんでした', 'bg-rose-500'); }
 }
 function loadState() {
 try {
 const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-if (raw) state = { ...getDefaultState(), ...JSON.parse(raw) };
+if (raw) { state = { ...getDefaultState(), ...JSON.parse(raw) }; return true; }
 } catch (e) {}
+return false;
 }
 /* ================= ユーティリティ ================= */
 const $ = id => document.getElementById(id);
@@ -1177,7 +1192,7 @@ return `<div class="theme-card rounded-2xl p-3.5 shadow-sm border space-y-2.5">
 <div class="min-w-0"><p class="text-sm font-bold truncate">${escapeHtml(b.name)} <span class="text-[10px] theme-text-muted">✏️</span></p>
 <p class="text-[11px] theme-text-sub font-num">${yen(b.spent)} / ${yen(b.limit)} 使用</p></div>
 </button>
-<button type="button" onclick="openSpendModal('${b.id}')" class="px-3 py-2 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/25 text-xs font-bold shrink-0 btn-press">− 使った</button>
+<div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openSpendModal('${b.id}')" class="px-3 py-2 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/25 text-xs font-bold btn-press">− 使った</button><button type="button" onclick="confirmDeleteBudget('${b.id}')" class="p-2 rounded-xl theme-sub-box border text-xs btn-press" aria-label="予算枠を削除">🗑️</button></div>
 </div>
 <div class="w-full h-2 rounded-full theme-sub-box overflow-hidden"><div class="h-full rounded-full transition-all duration-500" style="width:${pct}%;background-color:${barColor}"></div></div>
 <p class="text-[11px] font-bold text-right font-num" style="color:${rest < 0 ? '#e11d48' : 'var(--text-sub)'}">${rest < 0 ? '予算オーバー ' + yen(-rest) : '残り ' + yen(rest)}</p>
@@ -1363,8 +1378,9 @@ if (editingBudgetId) Object.assign(state.budgets.find(x => x.id === editingBudge
 else state.budgets.push({ id: uid('b'), name, limit, icon: budgetEmoji, spent: 0 });
 saveState(); renderAll(); closeModal('modal-budget-form'); showToast('予算枠を保存しました');
 }
-function deleteCurrentBudget() {
-const b = state.budgets.find(x => x.id === editingBudgetId); if (!b) return;
+function deleteCurrentBudget() { confirmDeleteBudget(editingBudgetId); }
+function confirmDeleteBudget(id) {
+const b = state.budgets.find(x => x.id === id); if (!b) return;
 askConfirm('🗑️', `「${b.name}」を削除？`, '予算枠を削除します（これまでの支出記録と預金残高はそのまま残ります）。', () => {
 state.budgets = state.budgets.filter(x => x.id !== b.id); saveState(); renderAll(); closeModal('modal-budget-form'); showToast('削除しました', 'info');
 });
@@ -1449,18 +1465,29 @@ card.style.top = below ? Math.min(innerHeight - card.offsetHeight - 12, r.bottom
 }
 function nextTourStep() { if (tourIdx < TOUR.length - 1) { tourIdx++; showTourStep(); } else endTour(); }
 function prevTourStep() { if (tourIdx > 0) { tourIdx--; showTourStep(); } }
-function endTour() { $('tour-overlay').classList.add('hidden'); state.hasSeenTutorial = true; saveState(); window.scrollTo({ top: 0 }); }
+function endTour() {
+$('tour-overlay').classList.add('hidden');
+if (isDemo) {
+const keep = { theme: state.theme, soundEnabled: state.soundEnabled };
+isDemo = false;
+state = { ...getDefaultState(), ...keep, hasSeenTutorial: true };
+saveState(); renderAll(); switchTab('home');
+showToast('🎉 0円からスタート！記録はこのスマホに保存されます');
+} else { state.hasSeenTutorial = true; saveState(); }
+window.scrollTo({ top: 0 });
+}
 window.addEventListener('resize', () => { if (!$('tour-overlay').classList.contains('hidden')) showTourStep(); });
 /* ================= 起動 ================= */
 document.addEventListener('DOMContentLoaded', () => {
 document.querySelector('nav').id = 'tour-nav';
-loadState();
+const hasData = loadState();
+if (!hasData || !state.hasSeenTutorial) { state = getDemoState(); isDemo = true; }
 setTheme(state.theme, true);
 renderSoundIcon();
 renderAll();
 switchTab('home');
 saveState();
-if (!state.hasSeenTutorial) setTimeout(startTourFromBeginning, 600);
+if (isDemo) setTimeout(startTourFromBeginning, 600);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 });
 // 日付が変わったら「1日あたり」を更新
