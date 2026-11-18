@@ -860,6 +860,15 @@ class="w-full px-3.5 py-2.5 rounded-xl border theme-input text-sm focus:outline-
 class="w-full pl-8 pr-4 py-3 rounded-xl border theme-input text-lg font-bold font-num focus:outline-none">
 </div>
 </div>
+<div class="theme-sub-box border rounded-2xl p-3 space-y-2.5">
+<label class="flex items-center justify-between gap-3 cursor-pointer">
+<span><span class="block text-xs font-bold">🔁 毎月渡す分（親に渡すお金など）</span><span class="block text-[10px] theme-text-sub mt-0.5">決めた日に「渡した」として0%に戻り、また貯め直します</span></span>
+<input type="checkbox" id="input-goal-monthly" onchange="toggleGoalMonthlyArea()" class="w-5 h-5 shrink-0 accent-emerald-600">
+</label>
+<div id="goal-monthly-area" class="hidden flex items-center gap-2 text-xs font-bold">
+<span>毎月</span><input type="number" id="input-goal-reset-day" min="1" max="31" inputmode="numeric" value="1" class="w-16 px-2 py-2 rounded-xl border theme-input text-center font-num focus:outline-none"><span>日に渡す</span>
+</div>
+</div>
 <div class="flex gap-2 pt-1">
 <button type="button" id="btn-delete-goal" onclick="deleteCurrentGoal()"
 class="hidden px-4 py-3.5 rounded-2xl bg-rose-500/15 text-rose-600 font-bold text-xs border border-rose-500/30 btn-press">
@@ -1164,6 +1173,7 @@ return `<button type="button" onclick="setActiveGoal('${g.id}')" class="snap-sta
 <div class="flex items-center gap-1.5 text-xs font-bold truncate"><span>${escapeHtml(g.icon)}</span><span class="truncate">${escapeHtml(g.title)}</span></div>
 <div class="font-num font-extrabold text-base mt-1">${yen(g.savedAmount)}</div>
 <div class="text-[10px] font-num ${act ? 'text-slate-500' : 'text-white/75'}">/ ${yen(g.targetAmount)}（${goalPct(g)}%）</div>
+${g.monthly ? `<div class="text-[10px] font-bold mt-0.5 ${act ? 'text-emerald-700' : 'text-amber-200'}">🔁 ${g.resetDay}日に渡す・あと${daysUntilReset(g.resetDay)}日</div>` : ''}
 <div class="w-full h-1.5 rounded-full mt-1.5 overflow-hidden ${act ? 'bg-slate-200' : 'bg-black/20'}"><div class="h-full rounded-full bg-amber-400" style="width:${goalPct(g)}%"></div></div>
 </button>`;
 }).join('');
@@ -1202,7 +1212,8 @@ return `<div class="theme-card rounded-2xl p-3.5 shadow-sm border space-y-2.5">
 const HIST_STYLE = {
 save: { icon: '🐷', sign: '+', color: 'var(--brand-text)', tag: '貯金' },
 spend: { icon: '💸', sign: '−', color: '#e11d48', tag: '支出' },
-deposit: { icon: '🏦', sign: '+', color: 'var(--accent-free)', tag: '入金' }
+deposit: { icon: '🏦', sign: '+', color: 'var(--accent-free)', tag: '入金' },
+handover: { icon: '🤝', sign: '−', color: '#e11d48', tag: '受け渡し' }
 };
 function historyRow(h, withDelete) {
 const s = HIST_STYLE[h.type] || HIST_STYLE.save;
@@ -1236,7 +1247,7 @@ return `<div class="theme-card rounded-2xl p-3.5 shadow-sm border space-y-2.5" s
 <div class="flex items-center justify-between gap-2">
 <div class="flex items-center gap-2 min-w-0"><span class="text-xl">${escapeHtml(g.icon)}</span>
 <div class="min-w-0"><p class="text-sm font-bold truncate">${escapeHtml(g.title)}</p>
-<p class="text-[11px] theme-text-sub font-num">${yen(g.savedAmount)} / ${yen(g.targetAmount)}・あと${yen(Math.max(0, g.targetAmount - g.savedAmount))}</p></div></div>
+<p class="text-[11px] theme-text-sub font-num">${yen(g.savedAmount)} / ${yen(g.targetAmount)}・あと${yen(Math.max(0, g.targetAmount - g.savedAmount))}</p>${g.monthly ? `<p class="text-[10px] font-bold theme-brand-text mt-0.5">🔁 毎月${g.resetDay}日に渡して0%に戻る・次まであと${daysUntilReset(g.resetDay)}日</p>` : ''}</div></div>
 <span class="text-sm font-extrabold font-num theme-brand-text shrink-0">${goalPct(g)}%</span>
 </div>
 <div class="w-full h-2 rounded-full theme-sub-box overflow-hidden"><div class="h-full rounded-full theme-brand-bg" style="width:${goalPct(g)}%"></div></div>
@@ -1349,6 +1360,7 @@ askConfirm('🗑️', 'この記録を取り消す？', `「${h.title}」${yen(h
 if (h.type === 'save') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount = Math.max(0, g.savedAmount - h.amount); }
 else if (h.type === 'spend') { const b = state.budgets.find(x => x.id === h.budgetId); if (b) b.spent = Math.max(0, b.spent - h.amount); state.bankBalance += h.amount; }
 else if (h.type === 'deposit') { state.bankBalance -= h.amount; }
+else if (h.type === 'handover') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount += h.amount; state.bankBalance += h.amount; }
 state.history = state.history.filter(x => x.id !== id);
 saveState(); renderAll(); showToast('記録を取り消しました', 'info');
 });
@@ -1391,14 +1403,55 @@ editingGoalId = g ? g.id : null;
 $('goal-form-modal-title').textContent = g ? '🎯 貯金項目を編集' : '🎯 新しい貯金項目をつくる';
 $('input-goal-title').value = g ? g.title : ''; $('input-goal-amount').value = g ? g.targetAmount : '';
 $('btn-delete-goal').classList.toggle('hidden', !g);
+$('input-goal-monthly').checked = !!(g && g.monthly); $('input-goal-reset-day').value = g && g.resetDay ? g.resetDay : 1; toggleGoalMonthlyArea();
 pickGoalEmoji(g ? g.icon : GOAL_EMOJIS[0]); openModal('modal-goal-form');
+}
+function toggleGoalMonthlyArea() { $('goal-monthly-area').classList.toggle('hidden', !$('input-goal-monthly').checked); }
+function clampDate(y, m, day) { return new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate())); }
+// いまの「期間」の開始日（直近の渡す日）をキーにする
+function periodKey(day) {
+const now = new Date(); now.setHours(0, 0, 0, 0);
+let start = clampDate(now.getFullYear(), now.getMonth(), day);
+if (start > now) start = clampDate(now.getFullYear(), now.getMonth() - 1, day);
+return `${start.getFullYear()}-${start.getMonth() + 1}`;
+}
+function daysUntilReset(day) {
+const now = new Date(); now.setHours(0, 0, 0, 0);
+let t = clampDate(now.getFullYear(), now.getMonth(), day);
+if (t <= now) t = clampDate(now.getFullYear(), now.getMonth() + 1, day);
+return Math.round((t - now) / 86400000);
+}
+function checkMonthlyHandovers() {
+if (isDemo) return;
+let changed = false;
+state.goals.forEach(g => {
+if (!g.monthly) return;
+const key = periodKey(g.resetDay);
+if (!g.lastResetKey) { g.lastResetKey = key; changed = true; return; }
+if (g.lastResetKey === key) return;
+const amt = g.savedAmount;
+if (amt > 0) {
+state.bankBalance -= amt;
+state.history.unshift({ id: uid('h'), type: 'handover', title: `${g.icon} ${g.title}（毎月の受け渡し）`, amount: amt, date: nowLabel(), goalId: g.id, budgetId: null });
+showToast(`🤝 ${g.title} ${yen(amt)} を渡しました。今月もまた0%から！`);
+}
+g.savedAmount = 0; g.lastResetKey = key; changed = true;
+});
+if (changed) { saveState(); renderAll(); }
 }
 function saveGoalForm() {
 const title = $('input-goal-title').value.trim(), targetAmount = parseAmount('input-goal-amount');
 if (!title) { showToast('タイトルを入力してください', 'error'); return; }
 if (!targetAmount) { showToast('目標金額を入力してください', 'error'); return; }
-if (editingGoalId) Object.assign(state.goals.find(x => x.id === editingGoalId), { title, targetAmount, icon: goalEmoji });
-else { const id = uid('g'); state.goals.push({ id, title, targetAmount, icon: goalEmoji, savedAmount: 0 }); if (!activeGoal() || state.goals.length === 1) state.activeGoalId = id; }
+const monthly = $('input-goal-monthly').checked, resetDay = Math.floor(Number($('input-goal-reset-day').value));
+if (monthly && !(resetDay >= 1 && resetDay <= 31)) { showToast('渡す日は1〜31で入力してください', 'error'); return; }
+const mFields = monthly ? { monthly: true, resetDay } : { monthly: false };
+if (editingGoalId) {
+const g = state.goals.find(x => x.id === editingGoalId);
+const startNew = monthly && (!g.monthly || g.resetDay !== resetDay);
+Object.assign(g, { title, targetAmount, icon: goalEmoji }, mFields);
+if (startNew) g.lastResetKey = periodKey(resetDay);
+} else { const id = uid('g'); state.goals.push({ id, title, targetAmount, icon: goalEmoji, savedAmount: 0, ...mFields, lastResetKey: monthly ? periodKey(resetDay) : null }); if (!activeGoal() || state.goals.length === 1) state.activeGoalId = id; }
 saveState(); renderAll(); closeModal('modal-goal-form'); showToast('貯金項目を保存しました');
 }
 function deleteCurrentGoal() {
@@ -1484,6 +1537,7 @@ const hasData = loadState();
 if (!hasData || !state.hasSeenTutorial) { state = getDemoState(); isDemo = true; }
 setTheme(state.theme, true);
 renderSoundIcon();
+checkMonthlyHandovers();
 renderAll();
 switchTab('home');
 saveState();
@@ -1491,7 +1545,7 @@ if (isDemo) setTimeout(startTourFromBeginning, 600);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 });
 // 日付が変わったら「1日あたり」を更新
-document.addEventListener('visibilitychange', () => { if (!document.hidden) renderSummary(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkMonthlyHandovers(); renderAll(); } });
 </script>
 </body>
 </html>
