@@ -404,7 +404,7 @@ class="text-xs bg-white text-slate-800 font-bold px-3 py-1.5 rounded-xl shadow-s
 <h2 class="text-base font-bold flex items-center gap-1.5">
 <span>📊</span> 今月のやりくり予算枠
 </h2>
-<p class="text-xs theme-text-sub">使うと予算残高と自由費（預金）から自動で引かれます</p>
+<p class="text-xs theme-text-sub">使った分を予算残高から引きます（預金から引くかは選べます）</p>
 </div>
 <button type="button" onclick="openBudgetFormModal()"
 class="text-xs font-bold theme-brand-soft border px-3 py-2 rounded-xl flex items-center gap-1 shrink-0 btn-press">
@@ -671,7 +671,7 @@ class="w-full py-3 rounded-xl theme-brand-bg text-white font-extrabold text-xs s
 <ul class="space-y-1.5 theme-text-sub leading-relaxed list-disc list-inside">
 <li><strong>自由費</strong> ＝「預金残高」−「目的別貯金の合計」</li>
 <li><strong>貯金すると</strong>：貯金が増えた分だけ「自由費」が減ります（口座全体の預金は減りません）。</li>
-<li><strong>予算枠から使うと</strong>：予算残高と「預金残高（＝自由費）」の両方から自動で引かれます。</li>
+<li><strong>予算枠から使うと</strong>：予算残高から引かれます。カードや口座から払ったときは「預金残高からも引く」をオンにすると預金（＝自由費）も減ります。引き出した現金で払ったときはオフのままでOK。</li>
 </ul>
 </div>
 </div>
@@ -730,7 +730,7 @@ class="w-full py-3.5 rounded-2xl theme-brand-bg text-white font-bold text-sm sha
 <span id="spend-modal-icon" class="text-2xl">🍽️</span>
 <div>
 <h3 id="spend-modal-title" class="text-base font-bold">外食・カフェ代から使う</h3>
-<p class="text-xs theme-text-sub">残り予算: <strong id="spend-modal-remaining" class="theme-brand-text font-num">¥8,000</strong>（預金残高からも引かれます）</p>
+<p class="text-xs theme-text-sub">残り予算: <strong id="spend-modal-remaining" class="theme-brand-text font-num">¥8,000</strong></p>
 </div>
 </div>
 <button type="button" onclick="closeModal('modal-spend')" class="p-2 rounded-full theme-sub-box theme-text-sub">✕</button>
@@ -757,9 +757,13 @@ class="w-full pl-8 pr-4 py-3 rounded-xl border theme-input text-lg font-bold fon
 <input type="text" id="input-spend-memo" placeholder="例: 友達とランチ、カフェ代など"
 class="w-full px-3.5 py-2.5 rounded-xl border theme-input text-sm focus:outline-none">
 </div>
+<label class="flex items-center justify-between gap-3 theme-sub-box border rounded-2xl p-3 cursor-pointer">
+<span><span class="block text-xs font-bold">🏦 預金残高からも引く</span><span id="spend-bank-hint" class="block text-[10px] theme-text-sub mt-0.5"></span></span>
+<input type="checkbox" id="input-spend-from-bank" onchange="updateSpendBankHint()" class="w-5 h-5 shrink-0 accent-rose-500">
+</label>
 <button type="button" onclick="submitSpend()"
 class="w-full py-3.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm shadow-md btn-press">
-この金額を使う（予算＆預金から引く）
+この金額を使う
 </button>
 </div>
 </div>
@@ -1342,15 +1346,21 @@ $('spend-modal-icon').textContent = b.icon;
 $('spend-modal-title').textContent = `${b.name}から使う`;
 $('spend-modal-remaining').textContent = yen(b.limit - b.spent);
 $('input-spend-amount').value = ''; $('input-spend-memo').value = '';
+$('input-spend-from-bank').checked = !!state.spendFromBank; updateSpendBankHint();
 openModal('modal-spend');
+}
+function updateSpendBankHint() {
+$('spend-bank-hint').textContent = $('input-spend-from-bank').checked ? 'カード・口座払い：予算と預金の両方から引きます' : '引き出した現金で払った：予算からだけ引きます';
 }
 function setSpendAmount(n) { $('input-spend-amount').value = n; }
 function submitSpend() {
 const b = state.budgets.find(x => x.id === spendBudgetId); const amt = parseAmount('input-spend-amount');
 if (!b) return; if (!amt) { showToast('金額を入力してください', 'error'); return; }
-b.spent += amt; state.bankBalance -= amt;
+const fromBank = $('input-spend-from-bank').checked;
+state.spendFromBank = fromBank;
+b.spent += amt; if (fromBank) state.bankBalance -= amt;
 const memo = $('input-spend-memo').value.trim();
-state.history.unshift({ id: uid('h'), type: 'spend', title: `${b.name}${memo ? '（' + memo + '）' : ''}`, amount: amt, date: nowLabel(), goalId: null, budgetId: b.id });
+state.history.unshift({ id: uid('h'), type: 'spend', title: `${b.name}${memo ? '（' + memo + '）' : ''}${fromBank ? '' : '・現金'}`, amount: amt, date: nowLabel(), goalId: null, budgetId: b.id, fromBank });
 saveState(); renderAll(); closeModal('modal-spend');
 showToast(b.spent > b.limit ? `⚠️ ${b.name}が予算オーバーです` : `💸 ${yen(amt)} 記録しました`, b.spent > b.limit ? 'error' : 'ok');
 }
@@ -1358,7 +1368,7 @@ function confirmDeleteHistory(id) {
 const h = state.history.find(x => x.id === id); if (!h) return;
 askConfirm('🗑️', 'この記録を取り消す？', `「${h.title}」${yen(h.amount)} を取り消して、残高を元に戻します。`, () => {
 if (h.type === 'save') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount = Math.max(0, g.savedAmount - h.amount); }
-else if (h.type === 'spend') { const b = state.budgets.find(x => x.id === h.budgetId); if (b) b.spent = Math.max(0, b.spent - h.amount); state.bankBalance += h.amount; }
+else if (h.type === 'spend') { const b = state.budgets.find(x => x.id === h.budgetId); if (b) b.spent = Math.max(0, b.spent - h.amount); if (h.fromBank !== false) state.bankBalance += h.amount; }
 else if (h.type === 'deposit') { state.bankBalance -= h.amount; }
 else if (h.type === 'handover') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount += h.amount; state.bankBalance += h.amount; }
 state.history = state.history.filter(x => x.id !== id);
