@@ -1183,19 +1183,19 @@ function renderBudgets() {
 const box = $('budget-list-container');
 if (!state.budgets.length) { box.innerHTML = `<p class="text-xs theme-text-muted text-center py-6">予算枠がありません。「＋ 枠を追加」から作れます</p>`; return; }
 box.innerHTML = state.budgets.map(b => {
-const rest = b.limit - b.spent, pct = b.limit > 0 ? Math.min(100, Math.round(b.spent / b.limit * 100)) : 0;
-const barColor = pct >= 100 ? '#e11d48' : pct >= 80 ? '#f59e0b' : 'var(--brand-primary)';
+const rest = b.limit - b.spent, pct = b.limit > 0 ? Math.max(0, Math.min(100, Math.round(rest / b.limit * 100))) : 0;
+const barColor = pct <= 0 ? '#e11d48' : pct <= 20 ? '#f59e0b' : 'var(--brand-primary)';
 return `<div class="theme-card rounded-2xl p-3.5 shadow-sm border space-y-2.5">
 <div class="flex items-center justify-between gap-2">
 <button type="button" onclick="openBudgetFormModal('${b.id}')" class="flex items-center gap-2 min-w-0 text-left">
 <span class="text-xl shrink-0">${escapeHtml(b.icon)}</span>
 <div class="min-w-0"><p class="text-sm font-bold truncate">${escapeHtml(b.name)} <span class="text-[10px] theme-text-muted">✏️</span></p>
-<p class="text-[11px] theme-text-sub font-num">${yen(b.spent)} / ${yen(b.limit)} 使用</p></div>
+<p class="text-[11px] theme-text-sub font-num">${yen(b.spent)} 使用 / 予算 ${yen(b.limit)}</p></div>
 </button>
 <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openSpendModal('${b.id}')" class="px-3 py-2 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/25 text-xs font-bold btn-press">− 使った</button><button type="button" onclick="confirmDeleteBudget('${b.id}')" class="p-2 rounded-xl theme-sub-box border text-xs btn-press" aria-label="予算枠を削除">🗑️</button></div>
 </div>
 <div class="w-full h-2 rounded-full theme-sub-box overflow-hidden"><div class="h-full rounded-full transition-all duration-500" style="width:${pct}%;background-color:${barColor}"></div></div>
-<p class="text-[11px] font-bold text-right font-num" style="color:${rest < 0 ? '#e11d48' : 'var(--text-sub)'}">${rest < 0 ? '予算オーバー ' + yen(-rest) : '残り ' + yen(rest)}</p>
+<p class="text-[11px] font-bold text-right font-num" style="color:${rest < 0 ? '#e11d48' : 'var(--text-sub)'}">${rest < 0 ? '予算オーバー ' + yen(-rest) : '残り ' + yen(rest) + '（' + pct + '%）'}</p>
 </div>`;
 }).join('');
 }
