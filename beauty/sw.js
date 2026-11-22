@@ -1,5 +1,5 @@
 // 自分磨きログ専用（scope: /beauty/）。貯金アプリのキャッシュとは別管理
-const CACHE = 'beauty-v1';
+const CACHE = 'beauty-v2';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './muse.webp'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

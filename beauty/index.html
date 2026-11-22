@@ -273,6 +273,37 @@
       </div>
     </section>
 
+    <!-- 3.5 今日の美容豆知識 -->
+    <section class="rounded-3xl bg-white/95 border border-blush-200 p-4 shadow-sm">
+      <div class="flex items-center justify-between gap-2 mb-2.5">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-9 h-9 rounded-2xl bg-champagne-200/80 flex items-center justify-center text-base shrink-0">💡</span>
+          <div class="min-w-0">
+            <h2 class="text-sm font-bold text-cocoa-900">今日の美容豆知識</h2>
+            <p class="text-[10px] text-cocoa-700">可愛く素敵な女性になるための小さなコツ</p>
+          </div>
+        </div>
+        <button id="open-tips-list-btn" type="button" class="shrink-0 px-3 py-2 rounded-xl bg-blush-100 hover:bg-blush-200 text-blush-700 text-[11px] font-bold transition">
+          一覧 <span id="tips-total-count"></span>
+        </button>
+      </div>
+
+      <div class="rounded-2xl bg-gradient-to-br from-blush-50 to-champagne-100/60 border border-blush-200/80 p-3.5">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <span id="tip-cat-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-white border border-blush-200 text-blush-700 font-bold">スキンケア</span>
+          <button id="tip-fav-btn" type="button" aria-label="お気に入り" class="text-lg leading-none px-1 text-blush-500 active:scale-90 transition">♡</button>
+        </div>
+        <div id="tip-title" class="text-sm font-bold text-cocoa-900 leading-snug"></div>
+        <p id="tip-body" class="text-xs text-cocoa-800 leading-relaxed mt-1.5"></p>
+      </div>
+
+      <div class="flex gap-2 mt-2.5">
+        <button id="tip-prev-btn" type="button" class="px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-blush-700 text-xs font-bold active:scale-95 transition">‹ 前</button>
+        <button id="tip-next-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-blush-600 hover:bg-blush-700 text-white text-xs font-bold active:scale-95 transition">次の豆知識を見る ›</button>
+        <button id="tip-random-btn" type="button" title="ランダム" class="px-3.5 py-2.5 rounded-xl bg-champagne-200/90 text-cocoa-900 text-xs font-bold active:scale-95 transition">🎲</button>
+      </div>
+    </section>
+
     <!-- 4. 今日の自分磨きチェックリスト -->
     <section class="rounded-3xl bg-white/95 border border-blush-200 p-5 shadow-sm">
       <div class="flex items-center justify-between mb-3">
@@ -568,6 +599,21 @@
     </div>
   </div>
 
+  <!-- モーダル：美容豆知識一覧 -->
+  <div id="tips-list-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-5 shadow-2xl flex flex-col max-h-[88vh]">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <span class="text-[10px] font-bold text-blush-600 uppercase tracking-wider">Beauty Tips</span>
+          <h3 class="font-serif text-base font-bold text-cocoa-900">美容豆知識ぜんぶ</h3>
+        </div>
+        <button id="close-tips-list-modal" type="button" class="p-1.5 text-cocoa-700 hover:text-cocoa-900">✕</button>
+      </div>
+      <div id="tips-filter-tabs" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-2 shrink-0"></div>
+      <div id="tips-list-body" class="space-y-2 overflow-y-auto flex-1 pr-0.5"></div>
+    </div>
+  </div>
+
   <!-- モーダル5：ホーム画面に追加（アプリ化）ガイド -->
   <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
     <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
@@ -666,6 +712,7 @@
       lastNailKeptDate: '',
       habits: defaultHabits,
       logs: {},
+      favTips: [],
       appointments: [] // [{ id, date: 'YYYY-MM-DD', icon: '✂️', label: '美容院', note: '' }]
     };
 
@@ -1250,6 +1297,198 @@
     // ==========================================
     // 9. ユーティリティ＆イベント設定
     // ==========================================
+    // ==========================================
+    // 美容豆知識データ
+    // ==========================================
+    const tipCats = {
+      skin: '🧴 スキンケア',
+      hair: '💇‍♀️ ヘア',
+      makeup: '💄 メイク',
+      hand: '💅 手元・ネイル',
+      body: '🧘‍♀️ 姿勢・ボディ',
+      food: '🍓 食事・睡眠',
+      fashion: '👗 ファッション・香り',
+      manner: '🌷 仕草・話し方',
+      mind: '💖 心・余裕'
+    };
+
+    const beautyTips = [
+      // スキンケア
+      { cat: 'skin', t: '洗顔は「泡で洗う」が鉄則', b: '手が肌に触れないくらいの濃密泡でくるくる。こすらないだけでくすみ・赤みがぐっと減ります。すすぎはぬるま湯（32〜34℃）で20回以上。' },
+      { cat: 'skin', t: '化粧水は「手のひらプレス」でなじませる', b: 'パチパチ叩くより、手のひらで顔を包んで5秒押さえる方が摩擦ゼロでしっとり入ります。手のひらの温度で浸透感もアップ。' },
+      { cat: 'skin', t: '日焼け止めは冬も曇りの日も', b: '肌老化の大部分は紫外線が原因と言われます。毎朝の日焼け止めが、未来の透明感への一番の投資。首と耳の後ろも忘れずに。' },
+      { cat: 'skin', t: 'タオルは「押し拭き」', b: '洗顔後はゴシゴシ拭かず、清潔なタオルをそっと当てて水分を吸わせるだけ。ほんの少しの摩擦も積み重なるとくすみの原因に。' },
+      { cat: 'skin', t: '枕カバーはこまめに交換', b: '顔が一晩中触れる場所。皮脂や汚れがニキビの原因になることも。2〜3日に1回の交換、難しければタオルを敷いて毎日替えるのがおすすめ。' },
+      { cat: 'skin', t: '保湿は「洗顔後すぐ」', b: 'お風呂上がりの肌は一気に乾燥します。脱衣所に化粧水を置いておけば、出てすぐ保湿できて乾燥知らず。' },
+      { cat: 'skin', t: 'スマホ画面もたまに拭いて', b: 'スマホは意外と汚れていて、頬に当てるとニキビの原因に。アルコールシートで拭く習慣をつけると肌も清潔感もアップ。' },
+      { cat: 'skin', t: '顔を触るクセをやめるだけで肌は変わる', b: '頬杖・あごを触るクセは肌荒れや輪郭のゆがみに直結。気づいたら手をそっと膝の上に戻すだけでOK。' },
+      { cat: 'skin', t: '唇の皮は剥かずに「ラップパック」', b: 'リップをたっぷり塗ってラップを3分のせるだけ。ふやけた皮が自然に落ちて、ちゅるんとした唇に。' },
+      { cat: 'skin', t: '新しいコスメはパッチテストから', b: '二の腕の内側に少し塗って様子を見ると安心。肌に合わないものを避けるのも立派な美肌ケアです。' },
+
+      // ヘア
+      { cat: 'hair', t: '髪は「すぐ乾かす」が美髪の近道', b: '濡れた髪はキューティクルが開いて傷みやすい状態。タオルドライ後、根元→毛先の順にドライヤー。最後に冷風を当てるとツヤが出ます。' },
+      { cat: 'hair', t: 'タオルドライは「挟んでポンポン」', b: '髪をこすり合わせると摩擦で傷みます。タオルで挟んで優しく押さえるように水分を取ると、手触りが全然違います。' },
+      { cat: 'hair', t: '洗う前のブラッシングで汚れが落ちやすく', b: 'シャンプー前に乾いた髪をとかすと、絡まりやほこりが取れて泡立ちもアップ。頭皮の血行も良くなります。' },
+      { cat: 'hair', t: 'シャンプーは指の腹で頭皮を洗う', b: '髪ではなく頭皮を洗うイメージで。爪を立てずに指の腹でマッサージするように洗うと、フケやかゆみ予防にも。' },
+      { cat: 'hair', t: 'ドライヤーは上から下へ', b: 'キューティクルは根元から毛先に向かって重なっています。上から風を当てるだけでまとまりとツヤがぐんと出ます。' },
+      { cat: 'hair', t: 'シルクの枕カバー・ナイトキャップ', b: '寝ている間の摩擦を減らして、朝の寝癖・広がりを軽減。ちょっとした贅沢が美髪につながります。' },
+      { cat: 'hair', t: '後れ毛は「少しだけ」がこなれ感', b: 'まとめ髪のときは耳前と襟足から少しだけ毛束を出して、軽く巻くか毛先にバームをつけると一気に大人っぽく。' },
+      { cat: 'hair', t: 'ヘアバームは手のひらでよく伸ばしてから', b: 'まず毛先、残りを表面にさっと。最初に根元につけるとべたつきの原因に。量は米粒〜小豆大から少しずつ。' },
+      { cat: 'hair', t: '前髪は「乾かし方」で決まる', b: '濡れたままにせず、まず前髪から乾かすのが鉄則。左右から風を当てて根元の割れクセをリセットすると、ふんわり自然な前髪に。' },
+
+      // メイク
+      { cat: 'makeup', t: 'ベースは「薄く・ツヤ」が今っぽい', b: '厚塗りより、気になる部分だけコンシーラーで隠す方が肌がきれいに見えます。仕上げに頬の高い位置にだけツヤを。' },
+      { cat: 'makeup', t: 'チークは「にこっと笑った頬の一番高い所」', b: '笑ったときに盛り上がる部分から、こめかみ方向へふんわり。血色感が出て優しい印象になります。' },
+      { cat: 'makeup', t: '眉は「眉頭を薄く・眉尻をはっきり」', b: '眉頭が濃いと強い印象に。スクリューブラシで眉頭をぼかすだけで、ふんわり柔らかい大人顔に。' },
+      { cat: 'makeup', t: 'リップは「内側を濃く」でじゅわっと血色', b: '唇の内側にだけ色をのせて、指で外側にぼかすとナチュラルな血色リップに。マスクにもつきにくいです。' },
+      { cat: 'makeup', t: 'メイクブラシ・パフは週1で洗う', b: '汚れたパフは雑菌の温床で肌荒れの原因に。きれいな道具だとメイクのノリも仕上がりも変わります。' },
+      { cat: 'makeup', t: 'メイク落としは「帰ったらすぐ」', b: '疲れて寝落ちする前に、帰宅したらまずメイクオフ。それだけで翌朝の肌のコンディションが全然違います。' },
+      { cat: 'makeup', t: 'マスカラはまつ毛を上げてから', b: 'ビューラーは根元・中間・毛先の3段階で少しずつ。根元をしっかり上げると目がぱっちり大きく見えます。' },
+      { cat: 'makeup', t: 'ハイライトは「鼻筋・目頭・あご先」に少しだけ', b: '光を集めたい所にちょんとのせると立体感と透明感がアップ。塗りすぎずに「どこにつけたか分からない」くらいが上品。' },
+      { cat: 'makeup', t: '涙袋はベージュの影でうるっと', b: '涙袋の下に薄いブラウンで影をつけて、上にパールベージュを。優しくて可愛い目元になります。' },
+
+      // 手元・ネイル
+      { cat: 'hand', t: 'ネイルオイルは寝る前に', b: '甘皮まわりに1滴ずつ塗ってくるくるなじませると、ささくれ予防にも。ネイルの持ちも良くなります。' },
+      { cat: 'hand', t: '爪の長さは「指先から1〜2mm」が上品', b: '短めの丸みのある形は清潔感があって指が長く見えます。爪切りよりやすりで整えると割れにくいです。' },
+      { cat: 'hand', t: 'やすりは一方向に動かす', b: '往復させると爪の先がささくれて割れやすくなります。外側から中央へ、一方向に優しく削るのがコツ。' },
+      { cat: 'hand', t: '爪を噛みたくなったらハンドクリーム', b: '口元に手がいきそうになったら、ハンドクリームを塗るクセに置き換え。いい香りで気持ちも落ち着きます。' },
+      { cat: 'hand', t: '水仕事のあとはすぐ保湿', b: '手を洗った後や洗い物の後は一番乾燥する瞬間。すぐにハンドクリームを塗ると、手荒れ知らずのすべすべ手肌に。' },
+      { cat: 'hand', t: 'ネイルの色で手元が変わる', b: '肌なじみの良いベージュ・ピンクは指が長く見え、ブルーやボルドーは手元が白く上品に見えます。気分で選ぶのも素敵。' },
+      { cat: 'hand', t: 'ハンドクリームは手の甲から', b: '手のひらより手の甲の方が乾燥しやすいので、手の甲同士をこすり合わせて塗ってから指先へ。' },
+
+      // 姿勢・ボディ
+      { cat: 'body', t: '姿勢をよくするだけで-3kg見え', b: '耳・肩・くるぶしが一直線になるように立つと、首が長く見えてスタイルアップ。頭のてっぺんを糸で吊られているイメージで。' },
+      { cat: 'body', t: 'スマホは目の高さで見る', b: '下を向き続けると首のシワや二重アゴの原因に。スマホを持つ手をもう片方の手で支えて、目線の高さに上げるクセを。' },
+      { cat: 'body', t: '歩くときは「みぞおちから脚」', b: 'みぞおちから脚が生えているイメージで歩くと、自然と歩幅が広がり脚長に。かかとから着地してつま先で蹴り出します。' },
+      { cat: 'body', t: '座るときは膝をそろえる', b: '膝と足首をそろえて、脚を少し斜めに流すととても上品。内ももの筋肉も使えて脚のラインもきれいに。' },
+      { cat: 'body', t: '湯船に浸かるとむくみスッキリ', b: '38〜40℃のお湯に10〜15分。血行が良くなって、むくみ・冷え・疲れが取れ、寝つきも良くなります。' },
+      { cat: 'body', t: '寝る前の肩回しで巻き肩リセット', b: '肩を前から後ろへ大きく10回まわすだけ。デスク作業や勉強で前に入った肩が戻って、デコルテがきれいに見えます。' },
+      { cat: 'body', t: 'ふくらはぎは「第二の心臓」', b: '座りっぱなしのときは、かかとの上げ下げを20回。脚のむくみが取れて、夕方の脚が軽くなります。' },
+      { cat: 'body', t: 'ボディクリームはお風呂上がり5分以内', b: '肌がまだ少し湿っているうちに塗ると伸びが良く、しっとり感が長続き。ひじ・ひざ・かかとは特に念入りに。' },
+      { cat: 'body', t: '深呼吸でお腹まわりスッキリ', b: '鼻から4秒吸って、口から8秒かけて細く吐き切る。お腹の奥の筋肉が使われて、リラックス効果も。' },
+
+      // 食事・睡眠
+      { cat: 'food', t: '水はこまめに少しずつ', b: '一気飲みより、コップ1杯を1日何回かに分けて。肌のうるおいや代謝のサポートに。常温か白湯がおすすめ。' },
+      { cat: 'food', t: '朝ごはんにタンパク質を', b: '卵・ヨーグルト・納豆・豆乳など。髪・肌・爪の材料になって、女性らしいハリのある体づくりに。' },
+      { cat: 'food', t: '食べる順番は「野菜→タンパク質→炭水化物」', b: '我慢しなくても、順番を変えるだけで血糖値の急上昇を抑えられて、食後の眠気やむくみ対策に。' },
+      { cat: 'food', t: 'よく噛むと小顔＆食べすぎ防止', b: '一口30回を目安に。フェイスラインの筋肉が使われるうえ、満腹感が得られて自然と食べすぎを防げます。' },
+      { cat: 'food', t: 'ビタミンCで透明感', b: 'いちご・キウイ・ブロッコリー・パプリカなど。肌のハリを支えるコラーゲンづくりを助けてくれます。' },
+      { cat: 'food', t: 'おやつはナッツ・ハイカカオチョコ・フルーツに', b: '我慢しすぎはストレスのもと。選び方を少し変えるだけで、満足感はそのままで美容にも◎。' },
+      { cat: 'food', t: '寝る1時間前にはスマホを置く', b: 'ブルーライトは眠りを浅くします。眠りの質が上がると肌の生まれ変わりもスムーズに。「美は夜つくられる」です。' },
+      { cat: 'food', t: '寝る前の温かい飲み物でリラックス', b: 'ノンカフェインのハーブティーやホットミルク。体がぽかぽかして寝つきが良くなります。' },
+      { cat: 'food', t: '塩分を摂りすぎた日はカリウム', b: 'ラーメンやスナックの後は、バナナ・アボカド・トマトなどで翌朝のむくみ対策。' },
+
+      // ファッション・香り
+      { cat: 'fashion', t: '首・手首・足首の「3首」を見せる', b: '細い部分を少し見せるだけで、全体が華奢で女性らしく見えます。袖をくしゅっとまくるだけでもOK。' },
+      { cat: 'fashion', t: '似合う色を顔まわりに', b: 'トップスや巻物に自分の肌に合う色を持ってくると顔色がぱっと明るく。迷ったら白・アイボリー・淡いピンクが万能。' },
+      { cat: 'fashion', t: '香水は「手首と膝裏」にほんのり', b: '香りは下から上に立ちのぼるので、膝裏や足首につけると上品にふわっと香ります。つけすぎず「近づいたら香る」くらいが素敵。' },
+      { cat: 'fashion', t: 'シワ・毛玉・汚れのない服が一番おしゃれ', b: '高い服より、手入れされた服の方がずっと素敵に見えます。毛玉取りとハンディスチーマーは最強の味方。' },
+      { cat: 'fashion', t: '靴はきれいに、かかとをチェック', b: '人は意外と足元を見ています。汚れやかかとのすり減りを整えるだけで、全体の印象がぐっと上品に。' },
+      { cat: 'fashion', t: '柔軟剤やボディミストで「いい匂い」', b: 'すれ違ったときにふわっと香る清潔感のある香りは、とても印象に残ります。香りは控えめに重ねすぎないのがコツ。' },
+      { cat: 'fashion', t: 'アクセサリーは「1点を主役に」', b: '揺れるピアスや華奢なネックレスなど、ひとつに絞ると洗練された印象に。全部盛りより引き算が大人っぽい。' },
+      { cat: 'fashion', t: '自分の骨格に合う形を知る', b: 'ウエストマークが似合う人、ゆるっとシルエットが似合う人など、体型に合う形を選ぶとスタイルが何倍もよく見えます。' },
+
+      // 仕草・話し方
+      { cat: 'manner', t: '物は「両手で」扱う', b: 'コップを持つ、物を渡す、受け取る。両手を添えるだけで丁寧で上品な印象になります。' },
+      { cat: 'manner', t: '指先をそろえる', b: '指をそろえて、ものを指すときも手のひら全体で示すと、とてもエレガント。写真でも手元がきれいに見えます。' },
+      { cat: 'manner', t: '振り返るときは「顔→体」の順に', b: '名前を呼ばれたら、まず顔だけ振り向いてから体を向けると、しなやかで柔らかい印象に。' },
+      { cat: 'manner', t: '口角をほんの少し上げる', b: '何もしていないときも口角を1mm上げるだけで、優しく話しかけやすい雰囲気に。舌を上アゴにつけると自然と上がります。' },
+      { cat: 'manner', t: '話すスピードを少しゆっくりに', b: '早口になりそうな時ほど一呼吸。ゆっくり話すだけで、落ち着いた余裕のある大人の女性に見えます。' },
+      { cat: 'manner', t: '「ありがとう」を名前つきで', b: '「〇〇さん、ありがとう」と名前を添えると、相手の心に残るあたたかい印象に。笑顔もセットで。' },
+      { cat: 'manner', t: 'ドアや引き出しは最後まで手を添えて', b: 'バタンと閉めず、最後まで手を添えて静かに閉める。小さな所作に品の良さが出ます。' },
+      { cat: 'manner', t: '相手の話を「うなずき」で聞く', b: '目を見て、ゆっくりうなずきながら聞くと「話しやすい人」に。聞き上手は愛される人の共通点です。' },
+      { cat: 'manner', t: '髪を耳にかけるときはゆっくり', b: '指先をそろえて、ゆっくり耳にかける。それだけでふとした瞬間がとても女性らしく見えます。' },
+
+      // 心・余裕
+      { cat: 'mind', t: '人と比べず「昨日の自分」と比べる', b: 'SNSの誰かではなく、昨日の自分より少しでも良くなっていればそれで100点。自分のペースが一番美しいです。' },
+      { cat: 'mind', t: '鏡を見たら1つ褒める', b: '「今日の肌つるつる」「前髪かわいい」。自分を褒めるクセがつくと表情が明るくなって、本当に魅力が増していきます。' },
+      { cat: 'mind', t: '完璧じゃなくていい', b: 'できない日があっても大丈夫。ゆるく続ける方が、完璧を目指して疲れるよりずっと遠くまで行けます。' },
+      { cat: 'mind', t: '5分早く行動すると余裕が生まれる', b: '慌てていると表情も所作もせかせかしがち。5分の余裕が、穏やかで優雅な雰囲気をつくります。' },
+      { cat: 'mind', t: '好きなものに囲まれる', b: 'お気に入りのポーチ、可愛い文房具、いい香りのハンドクリーム。好きなものが近くにあると、自然と気分が上がって笑顔が増えます。' },
+      { cat: 'mind', t: '「ありがとう」を1日10回', b: '感謝を口にするほど、心も表情もやわらかくなります。小さなことにも「ありがとう」を。' },
+      { cat: 'mind', t: '疲れた日は休むのも自分磨き', b: '睡眠不足やストレスは肌にも心にも出ます。早く寝る日、何もしない日も、立派なケアのひとつです。' },
+      { cat: 'mind', t: '新しいことに1つ挑戦する', b: '新しい色のリップ、行ったことのないカフェ、初めての本。小さな挑戦が、表情をいきいきと輝かせてくれます。' },
+      { cat: 'mind', t: '「かわいい」は自信から生まれる', b: '一番の魅力は、自分を大切にしている人から出る雰囲気。毎日少しずつケアしているあなたは、もう十分素敵です。' }
+    ];
+
+    let tipIndex = 0;
+    let tipFilter = 'all';
+
+    function getDailyTipIndex() {
+      const d = new Date();
+      const dayNum = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 86400000);
+      return dayNum % beautyTips.length;
+    }
+
+    function tipKey(tip) { return tip.cat + ':' + tip.t; }
+
+    function renderTipCard() {
+      const tip = beautyTips[tipIndex];
+      const favs = state.favTips || [];
+      const isFav = favs.includes(tipKey(tip));
+      document.getElementById('tip-cat-badge').textContent = tipCats[tip.cat];
+      document.getElementById('tip-title').textContent = tip.t;
+      document.getElementById('tip-body').textContent = tip.b;
+      const favBtn = document.getElementById('tip-fav-btn');
+      favBtn.textContent = isFav ? '♥' : '♡';
+      document.getElementById('tips-total-count').textContent = `(${beautyTips.length})`;
+    }
+
+    function toggleFavTip(tip) {
+      if (!Array.isArray(state.favTips)) state.favTips = [];
+      const key = tipKey(tip);
+      const i = state.favTips.indexOf(key);
+      if (i >= 0) {
+        state.favTips.splice(i, 1);
+        showToast('お気に入りから外しました');
+      } else {
+        state.favTips.push(key);
+        playBell(false);
+        showToast('お気に入りに保存しました♥');
+      }
+      saveState();
+    }
+
+    function renderTipsList() {
+      const tabs = document.getElementById('tips-filter-tabs');
+      const favs = state.favTips || [];
+      const filters = [['all', 'すべて'], ['fav', '♥ お気に入り'], ...Object.entries(tipCats)];
+      tabs.innerHTML = filters.map(([k, label]) => `
+        <button type="button" data-tipcat="${k}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition ${
+          tipFilter === k ? 'bg-blush-600 text-white' : 'bg-blush-100 text-cocoa-700'
+        }">${escapeHtml(label)}</button>`).join('');
+      tabs.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+        tipFilter = b.dataset.tipcat;
+        renderTipsList();
+      }));
+
+      const list = beautyTips
+        .map((tip, i) => ({ tip, i }))
+        .filter(({ tip }) => tipFilter === 'all' || (tipFilter === 'fav' ? favs.includes(tipKey(tip)) : tip.cat === tipFilter));
+
+      const body = document.getElementById('tips-list-body');
+      if (list.length === 0) {
+        body.innerHTML = `<p class="text-xs text-cocoa-700 py-6 text-center">${tipFilter === 'fav' ? '♡を押した豆知識がここに集まります' : '豆知識がありません'}</p>`;
+        return;
+      }
+      body.innerHTML = list.map(({ tip, i }) => `
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/80">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-[10px] text-blush-700 font-bold mb-0.5">${escapeHtml(tipCats[tip.cat])}</div>
+              <div class="text-xs font-bold text-cocoa-900 leading-snug">${escapeHtml(tip.t)}</div>
+            </div>
+            <button type="button" data-fav-i="${i}" class="tip-list-fav shrink-0 text-base leading-none px-1 text-blush-500">${favs.includes(tipKey(tip)) ? '♥' : '♡'}</button>
+          </div>
+          <p class="text-[11px] text-cocoa-800 leading-relaxed mt-1">${escapeHtml(tip.b)}</p>
+        </div>`).join('');
+      body.querySelectorAll('.tip-list-fav').forEach(b => b.addEventListener('click', () => {
+        toggleFavTip(beautyTips[Number(b.dataset.favI)]);
+        renderTipsList();
+        renderTipCard();
+      }));
+    }
+
     function escapeHtml(str) {
       return String(str)
         .replace(/&/g, '&amp;')
@@ -1287,6 +1526,40 @@
         museTalkIndex = (museTalkIndex + 1) % museTalkLines.length;
         document.getElementById('daily-cheer-message').textContent = museTalkLines[museTalkIndex];
         playBell(false);
+      });
+
+      // 美容豆知識
+      tipIndex = getDailyTipIndex();
+      renderTipCard();
+      document.getElementById('tip-next-btn').addEventListener('click', () => {
+        tipIndex = (tipIndex + 1) % beautyTips.length;
+        renderTipCard();
+      });
+      document.getElementById('tip-prev-btn').addEventListener('click', () => {
+        tipIndex = (tipIndex - 1 + beautyTips.length) % beautyTips.length;
+        renderTipCard();
+      });
+      document.getElementById('tip-random-btn').addEventListener('click', () => {
+        let n = tipIndex;
+        while (beautyTips.length > 1 && n === tipIndex) n = Math.floor(Math.random() * beautyTips.length);
+        tipIndex = n;
+        renderTipCard();
+        playBell(false);
+      });
+      document.getElementById('tip-fav-btn').addEventListener('click', () => {
+        toggleFavTip(beautyTips[tipIndex]);
+        renderTipCard();
+      });
+      const tipsModal = document.getElementById('tips-list-modal');
+      document.getElementById('open-tips-list-btn').addEventListener('click', () => {
+        renderTipsList();
+        tipsModal.classList.remove('hidden');
+        tipsModal.classList.add('flex');
+        document.getElementById('tips-list-body').scrollTop = 0;
+      });
+      document.getElementById('close-tips-list-modal').addEventListener('click', () => {
+        tipsModal.classList.add('hidden');
+        tipsModal.classList.remove('flex');
       });
 
       // 写真を標準イラストに戻す
