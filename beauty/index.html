@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="自分磨きログ">
+  <meta name="theme-color" content="#fdf6f7">
+  <title>Lueur Beauty - まいにち自分磨き</title>
+  <link id="apple-touch-icon" rel="apple-touch-icon" href="">
+  <link rel="preload" as="image" href="./muse.webp">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans JP"', 'sans-serif'],
+            serif: ['"Noto Serif JP"', 'serif'],
+            display: ['"Cormorant Garamond"', '"Noto Serif JP"', 'serif'],
+          },
+          colors: {
+            blush: {
+              50: '#fdf8f9',
+              100: '#fbeff2',
+              200: '#f7dce3',
+              300: '#f0becb',
+              400: '#e594aa',
+              500: '#d46b88',
+              600: '#b84c6b',
+              700: '#963954',
+              800: '#782e44',
+              900: '#4a1b29',
+            },
+            champagne: {
+              100: '#faf4e8',
+              200: '#f2e3c6',
+              400: '#d9b675',
+              600: '#b08b49',
+            },
+            cocoa: {
+              700: '#5c464d',
+              800: '#423036',
+              900: '#2d1f24',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-blush-50 via-blush-100/60 to-champagne-100/50 text-cocoa-900 font-sans antialiased min-h-screen pb-28 selection:bg-blush-300 selection:text-cocoa-900">
+
+  <!-- トップヘッダー（周りから見られても自然で上品な「自分磨きログ」表記） -->
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-blush-200/80 px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blush-400 to-blush-600 text-white flex items-center justify-center shadow-md shadow-blush-500/20">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8L12 3z" fill="currentColor" fill-opacity="0.2"/>
+            <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="font-serif text-sm font-bold tracking-wide text-cocoa-900">まいにち自分磨き</h1>
+          <p class="font-display italic text-xs text-blush-600 font-semibold">Lueur Beauty Routine</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button id="sound-toggle-btn" type="button" aria-label="効果音切り替え" class="p-2.5 rounded-xl bg-blush-100/80 hover:bg-blush-200/70 text-blush-700 transition">
+          <svg id="sound-on-icon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="sound-off-icon" class="w-4 h-4 hidden text-cocoa-700/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <button id="install-guide-btn" type="button" class="px-3 py-2 rounded-xl bg-gradient-to-r from-blush-500 to-blush-600 hover:from-blush-600 hover:to-blush-700 text-white text-xs font-medium shadow-sm transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 5v14M5 12l7-7 7 7" />
+          </svg>
+          <span>アプリ化</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
+
+    <!-- 1. モード切り替えバナー -->
+    <section class="rounded-3xl bg-white/90 border border-blush-200 p-3.5 shadow-sm flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span id="mode-icon-badge" class="w-9 h-9 rounded-2xl bg-champagne-200/80 text-champagne-600 flex items-center justify-center shrink-0 text-base">
+          🌿
+        </span>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span id="mode-title" class="text-xs font-bold text-cocoa-900 truncate">テスト期間ゆるモード</span>
+            <span id="mode-tag" class="text-[10px] px-2 py-0.5 rounded-full bg-champagne-200 text-cocoa-800 font-semibold shrink-0">1つで花丸</span>
+          </div>
+          <p id="mode-desc" class="text-[11px] text-cocoa-700 truncate mt-0.5">今は現状維持＆ながらケアだけで100点満点！</p>
+        </div>
+      </div>
+      <button id="toggle-mode-btn" type="button" class="shrink-0 px-3 py-2 rounded-xl bg-blush-100 hover:bg-blush-200 text-blush-700 text-xs font-bold border border-blush-200 transition active:scale-95">
+        切替
+      </button>
+    </section>
+
+    <!-- 2. ミューズポートレート＆本日の達成状況カード -->
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-blush-50 to-blush-100 border border-blush-200 p-4 sm:p-5 shadow-md shadow-blush-500/5">
+      <div class="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-blush-300/20 blur-2xl pointer-events-none"></div>
+      <div class="absolute -left-10 -bottom-10 w-36 h-36 rounded-full bg-champagne-400/20 blur-2xl pointer-events-none"></div>
+
+      <!-- お姉さんイラスト＆応援メッセージエリア -->
+      <div class="relative mb-4 rounded-2xl bg-gradient-to-b from-white via-blush-50/70 to-blush-100/90 border border-blush-200/80 overflow-hidden shadow-xs">
+        <div class="flex items-center gap-3 p-3">
+          <!-- タップでセリフが切り替わるポートレート枠 -->
+          <button id="muse-portrait-btn" type="button" class="relative w-28 h-36 sm:w-32 sm:h-40 rounded-2xl overflow-hidden bg-gradient-to-b from-blush-50 to-blush-100 border-2 border-white shadow-md shrink-0 group focus:outline-none">
+            <!-- カスタム写真（アップロード時のみ表示） -->
+            <img id="muse-custom-img" src="" alt="マイミューズ" class="hidden w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+
+            <!-- デフォルト表示：オフショルニット＆ロイヤルブルーネイルのお姉さんイラスト -->
+            <img id="muse-default-img" src="./muse.webp" alt="ミューズ" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style="object-position: 50% 12%;" />
+
+            <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-full bg-white/90 text-[9px] font-bold text-blush-700 shadow-xs backdrop-blur-xs">
+              Tap ✨
+            </span>
+          </button>
+
+          <!-- 応援メッセージ＆写真設定 -->
+          <div class="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-1.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blush-500/10 text-blush-700 text-[10px] font-bold">
+                  <span>✨</span>
+                  <span>ビューティーコーチ</span>
+                </span>
+                <div class="flex items-center gap-1">
+                  <button id="muse-reset-btn" type="button" title="最初のイラストに戻す" class="hidden px-1.5 py-1 rounded-lg bg-white/90 hover:bg-white text-[10px] font-bold text-cocoa-700 border border-blush-200 shadow-2xs transition">↺</button>
+                  <label for="muse-image-upload" class="cursor-pointer px-2 py-1 rounded-lg bg-white/90 hover:bg-white text-[10px] font-bold text-cocoa-700 border border-blush-200 shadow-2xs transition flex items-center gap-1">
+                    <span>📷</span>
+                    <span>写真変更</span>
+                  </label>
+                </div>
+                <input id="muse-image-upload" type="file" accept="image/*" class="hidden" />
+              </div>
+
+              <div class="rounded-2xl bg-white/95 border border-blush-200/70 p-2.5 shadow-2xs">
+                <p id="daily-cheer-message" class="text-xs text-cocoa-800 leading-relaxed font-medium">
+                  「綺麗な指先とふんわりした雰囲気、絶対似合うよ✨ 今日も無理せず1つだけ一緒にケアしよ？」
+                </p>
+              </div>
+            </div>
+
+            <!-- 美爪キープ連続ミニカウンター -->
+            <div class="mt-2 rounded-xl bg-white/90 border border-sky-200/80 px-2.5 py-1.5 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-[10px] text-cocoa-700 font-medium">💅 美爪キープ連続</div>
+                <div class="flex items-baseline gap-1">
+                  <span id="nail-streak-count" class="font-serif text-base font-bold text-blue-700">0</span>
+                  <span class="text-[10px] text-cocoa-700">日目</span>
+                  <span class="text-[9px] text-slate-400">(最高<span id="nail-best-count">0</span>日)</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button id="nail-keep-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold shadow-xs transition active:scale-95">
+                  今日もキープ
+                </button>
+                <button id="nail-reset-btn" type="button" title="連続日数を0に戻す" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 text-[10px]">
+                  ↺
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 達成リング＆ランク情報 -->
+      <div class="flex items-center gap-4">
+        <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+          <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#f7dce3" stroke-width="9" />
+            <circle id="progress-ring-circle" cx="50" cy="50" r="42" fill="none" stroke="url(#roseGoldGrad)" stroke-width="9" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="263.89" class="transition-all duration-500" />
+            <defs>
+              <linearGradient id="roseGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e594aa" />
+                <stop offset="50%" stop-color="#d46b88" />
+                <stop offset="100%" stop-color="#d9b675" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span class="text-[10px] text-cocoa-700 font-medium">TODAY</span>
+            <span id="today-percent-text" class="font-display text-2xl font-bold text-blush-700 leading-none">0%</span>
+            <span id="today-fraction-text" class="text-[10px] text-cocoa-700 mt-0.5">0/8</span>
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blush-500/10 border border-blush-400/30 text-blush-700 text-[11px] font-bold mb-1">
+            <span>🌷</span>
+            <span id="rank-title">見習いツヤ肌レディ</span>
+          </div>
+          <div class="flex items-baseline gap-3 mt-1">
+            <div>
+              <span class="text-[11px] text-cocoa-700">連続ケア</span>
+              <div class="flex items-baseline gap-0.5">
+                <span id="streak-days" class="font-serif text-2xl font-bold text-cocoa-900">0</span>
+                <span class="text-xs text-blush-600 font-bold">日</span>
+              </div>
+            </div>
+            <div class="h-7 w-px bg-blush-200"></div>
+            <div>
+              <span class="text-[11px] text-cocoa-700">魅力Pt</span>
+              <div class="flex items-baseline gap-0.5">
+                <span id="total-points" class="font-serif text-2xl font-bold text-champagne-600">0</span>
+                <span class="text-xs text-champagne-600 font-bold">pt</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2">
+            <div class="flex justify-between text-[10px] text-cocoa-700 mb-1">
+              <span>次のランクまで</span>
+              <span id="next-rank-remain">あと 50 pt</span>
+            </div>
+            <div class="w-full h-1.5 bg-blush-200/80 rounded-full overflow-hidden">
+              <div id="rank-progress-bar" class="h-full bg-gradient-to-r from-blush-400 to-champagne-400 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ほっそり美指・ハンドクリームマッサージガイドカード -->
+    <section class="rounded-3xl bg-gradient-to-r from-blush-100/90 via-white to-champagne-100/90 border border-blush-200 p-4 shadow-sm">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-white border border-blush-200 flex items-center justify-center text-lg shrink-0 shadow-2xs">
+            🤲
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-xs sm:text-sm font-bold text-cocoa-900">ほっそり美指マッサージ＆塗り方</h2>
+            <p class="text-[11px] text-cocoa-700 truncate mt-0.5">ハンドクリームついでに指のむくみスッキリ！</p>
+          </div>
+        </div>
+        <button id="open-hand-guide-btn" type="button" class="shrink-0 px-3.5 py-2.5 rounded-2xl bg-blush-600 hover:bg-blush-700 text-white text-xs font-bold shadow-xs transition active:scale-95">
+          やり方を見る
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. 今日の自分磨きチェックリスト -->
+    <section class="rounded-3xl bg-white/95 border border-blush-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-sm font-bold text-cocoa-900 flex items-center gap-1.5">
+            <span>今日の自分磨きリスト</span>
+          </h2>
+          <p id="today-date-display" class="text-xs text-cocoa-700 mt-0.5">2026年11月22日(日)</p>
+        </div>
+        <button id="open-add-habit-btn" type="button" class="px-3 py-2 rounded-xl bg-blush-100 hover:bg-blush-200 text-blush-700 text-xs font-bold transition flex items-center gap-1">
+          <span>＋ 習慣追加</span>
+        </button>
+      </div>
+
+      <!-- カテゴリフィルタータブ -->
+      <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-3" id="category-tabs">
+        <button type="button" data-cat="all" class="cat-tab active px-3 py-1.5 rounded-full text-xs font-bold bg-blush-600 text-white shrink-0 transition">すべて</button>
+        <button type="button" data-cat="face" class="cat-tab px-3 py-1.5 rounded-full text-xs font-medium bg-blush-100 text-cocoa-700 hover:bg-blush-200 shrink-0 transition">小顔・二重アゴ</button>
+        <button type="button" data-cat="body" class="cat-tab px-3 py-1.5 rounded-full text-xs font-medium bg-blush-100 text-cocoa-700 hover:bg-blush-200 shrink-0 transition">泡リンパ・体型</button>
+        <button type="button" data-cat="parts" class="cat-tab px-3 py-1.5 rounded-full text-xs font-medium bg-blush-100 text-cocoa-700 hover:bg-blush-200 shrink-0 transition">指先・ツヤ保湿</button>
+        <button type="button" data-cat="mind" class="cat-tab px-3 py-1.5 rounded-full text-xs font-medium bg-blush-100 text-cocoa-700 hover:bg-blush-200 shrink-0 transition">仕草・余裕</button>
+      </div>
+
+      <!-- 習慣リスト本体 -->
+      <div id="habit-list-container" class="space-y-2.5"></div>
+    </section>
+
+    <!-- 5. ボディ＆コンディション記録（プレッシャーゼロのゆるメモ） -->
+    <section class="rounded-3xl bg-white/95 border border-blush-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-sm font-bold text-cocoa-900">ボディ＆ツヤメモ（任意）</h2>
+          <p class="text-[11px] text-cocoa-700">目標：女性らしい丸みを残して 61.95kg → 59.8kg</p>
+        </div>
+        <span id="weight-diff-badge" class="text-xs px-2.5 py-1 rounded-full bg-champagne-100 text-champagne-600 font-bold border border-champagne-200">
+          スタート 61.95kg
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/70">
+          <label for="weight-input" class="block text-[11px] text-cocoa-700 mb-1">今日の体重（測った日だけ）</label>
+          <div class="flex items-baseline gap-1">
+            <input id="weight-input" type="number" step="0.05" min="35" max="120" placeholder="61.95" class="w-full bg-white px-2.5 py-1.5 rounded-xl border border-blush-200 text-sm font-bold text-cocoa-900 focus:outline-none focus:border-blush-500">
+            <span class="text-xs text-cocoa-700 font-medium">kg</span>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/70 flex flex-col justify-between">
+          <span class="block text-[11px] text-cocoa-700 mb-1">今日の気分・ツヤ感</span>
+          <div class="flex items-center justify-between gap-1" id="mood-selector">
+            <button type="button" data-mood="🥰" class="mood-btn flex-1 py-1.5 rounded-xl bg-white border border-blush-200 text-base hover:scale-105 transition">🥰</button>
+            <button type="button" data-mood="✨" class="mood-btn flex-1 py-1.5 rounded-xl bg-white border border-blush-200 text-base hover:scale-105 transition">✨</button>
+            <button type="button" data-mood="🍵" class="mood-btn flex-1 py-1.5 rounded-xl bg-white border border-blush-200 text-base hover:scale-105 transition">🍵</button>
+            <button type="button" data-mood="💤" class="mood-btn flex-1 py-1.5 rounded-xl bg-white border border-blush-200 text-base hover:scale-105 transition">💤</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-2.5 flex gap-2">
+        <input id="daily-note-input" type="text" placeholder="例：お風呂で鎖骨とふくらはぎ流した！麻辣湯おいしかった" class="flex-1 px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-xs text-cocoa-900 focus:outline-none focus:border-blush-500">
+        <button id="save-memo-btn" type="button" class="px-4 py-2.5 rounded-xl bg-blush-600 hover:bg-blush-700 text-white text-xs font-bold shrink-0 transition active:scale-95">
+          保存
+        </button>
+      </div>
+    </section>
+
+    <!-- 6. 自分磨き＆美容予定カレンダー（美容院・まつパ・カレンダー同期対応） -->
+    <section class="rounded-3xl bg-white/95 border border-blush-200 p-5 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-cocoa-900">美容予定＆ケアカレンダー</h2>
+          <p class="text-[10px] text-cocoa-700">日付をタップして美容院・まつパ予定を登録できます</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="prev-month-btn" type="button" class="p-1.5 rounded-lg bg-blush-100 hover:bg-blush-200 text-cocoa-800">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <span id="calendar-month-label" class="text-xs font-bold text-blush-700 min-w-[84px] text-center">2026年11月</span>
+          <button id="next-month-btn" type="button" class="p-1.5 rounded-lg bg-blush-100 hover:bg-blush-200 text-cocoa-800">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 次の美容予定ハイライト＆カレンダー同期ボタン -->
+      <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/80 flex items-center justify-between gap-2">
+        <div id="next-salon-banner" class="text-xs text-cocoa-800 min-w-0 truncate">
+          <span class="text-blush-600 font-bold">美容予定：</span>まだ登録がありません
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="open-salon-modal-btn" type="button" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-blush-100 text-blush-700 text-[11px] font-bold border border-blush-200 transition">
+            ＋ 予定追加
+          </button>
+          <button id="export-ics-btn" type="button" title="スマホのカレンダーアプリに同期" class="px-2.5 py-1.5 rounded-xl bg-champagne-200/90 hover:bg-champagne-200 text-cocoa-900 text-[11px] font-bold transition flex items-center gap-1">
+            <span>📅</span>
+            <span>同期</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-cocoa-700">
+        <div class="text-blush-600">日</div>
+        <div>月</div>
+        <div>火</div>
+        <div>水</div>
+        <div>木</div>
+        <div>金</div>
+        <div class="text-sky-600">土</div>
+      </div>
+      <div id="calendar-grid" class="grid grid-cols-7 gap-1.5 text-center"></div>
+
+      <div class="pt-2.5 border-t border-blush-100 flex flex-wrap items-center justify-center gap-3 text-[10px] text-cocoa-700">
+        <div class="flex items-center gap-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-blush-200"></span>
+          <span>1〜2個</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-blush-400"></span>
+          <span>半分以上</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blush-600 to-champagne-400"></span>
+          <span>完璧ケア</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span>✂️👁️💅</span>
+          <span>サロン予定</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-2">
+    <div class="px-4 py-2.5 rounded-2xl bg-cocoa-900/95 text-white text-xs font-medium shadow-xl backdrop-blur-md whitespace-nowrap flex items-center gap-1.5">
+      <span>✨</span>
+      <span id="toast-text">記録しました！</span>
+    </div>
+  </div>
+
+  <!-- モーダル1：ほっそり美指・ハンドクリームマッサージ講座 -->
+  <div id="hand-guide-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-5 shadow-2xl space-y-3.5 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-bold text-blush-600 uppercase tracking-wider">Hand & Finger Care</span>
+          <h3 class="font-serif text-base font-bold text-cocoa-900">ほっそり美指マッサージ＆塗り方</h3>
+        </div>
+        <button id="close-hand-guide-modal" type="button" class="p-1.5 text-cocoa-700 hover:text-cocoa-900">✕</button>
+      </div>
+
+      <p class="text-xs text-cocoa-700 leading-relaxed">
+        ハンドクリームを塗るついでに<strong>片手30秒</strong>だけ流すと、指のむくみが取れて関節がスッキリ見え、ネイルの映えるほっそりした手元に近づきます！
+      </p>
+
+      <div class="space-y-2.5 text-xs">
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/80 space-y-1">
+          <div class="font-bold text-blush-700">STEP 1. 手のひらで温めて「手の甲合わせ」</div>
+          <p class="text-cocoa-800 leading-relaxed">
+            クリームをパール1〜2粒分出し、両手のひらで3秒温めます。まず<strong>手の甲同士をすり合わせて</strong>伸ばし、爪の根元（甘皮まわり）にも指先でクルクル刷り込みます。
+          </p>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/80 space-y-1">
+          <div class="font-bold text-blush-700">STEP 2. 指の付け根→指先へ「らせん流し」</div>
+          <p class="text-cocoa-800 leading-relaxed">
+            反対の手の親指と人差し指で、1本ずつ<strong>指の付け根から指先に向かってクルクル揉みながらスライド</strong>（各指3回）。最後に爪の両脇を軽くキュッと押すと縦長美爪に！
+          </p>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/80 space-y-1">
+          <div class="font-bold text-blush-700">STEP 3. 万能ツボ「合谷（ごうこく）」プッシュ</div>
+          <p class="text-cocoa-800 leading-relaxed">
+            親指と人差し指の骨が交わるくぼみ（合谷）を、反対の親指で<strong>「痛気持ちいい」強さで5秒ゆっくり押す×3回</strong>。手だけでなく顔のむくみ・勉強疲れにも効きます。
+          </p>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-blush-50 border border-blush-200/80 space-y-1">
+          <div class="font-bold text-blush-700">STEP 4. 手の甲の骨の間→手首へ流す</div>
+          <p class="text-cocoa-800 leading-relaxed">
+            指と指の間（水かき部分）から手首に向かって、手の甲の骨の間を親指でスーッと撫で下ろします。仕上げに手首を軽くブラブラ振れば完了！
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button id="complete-hand-massage-btn" type="button" class="flex-1 py-3 rounded-2xl bg-gradient-to-r from-blush-500 to-blush-600 text-white text-xs font-bold shadow-md active:scale-95 transition">
+          塗ってマッサージした！(記録)
+        </button>
+        <button id="close-hand-guide-btn2" type="button" class="px-4 py-3 rounded-2xl bg-blush-100 text-blush-700 text-xs font-bold">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル2：美容院・まつパなどの美容予定登録 -->
+  <div id="salon-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif text-base font-bold text-cocoa-900">美容予定をカレンダーに登録</h3>
+        <button id="close-salon-modal" type="button" class="p-1.5 text-cocoa-700 hover:text-cocoa-900">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-cocoa-800 mb-1">日付</label>
+          <input id="salon-date-input" type="date" class="w-full px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-sm text-cocoa-900 focus:outline-none focus:border-blush-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-cocoa-800 mb-1.5">メニューを選ぶ（タップで選択）</label>
+          <div class="grid grid-cols-2 gap-2" id="salon-preset-group">
+            <button type="button" data-icon="✂️" data-label="美容院" class="salon-preset-btn active py-2.5 px-3 rounded-xl bg-blush-600 text-white text-xs font-bold border border-blush-600 transition">
+              ✂️ 美容院
+            </button>
+            <button type="button" data-icon="👁️" data-label="まつパ" class="salon-preset-btn py-2.5 px-3 rounded-xl bg-blush-50 text-cocoa-800 text-xs font-bold border border-blush-200 transition">
+              👁️ まつパ
+            </button>
+            <button type="button" data-icon="💅" data-label="ネイル" class="salon-preset-btn py-2.5 px-3 rounded-xl bg-blush-50 text-cocoa-800 text-xs font-bold border border-blush-200 transition">
+              💅 ネイル
+            </button>
+            <button type="button" data-icon="🛍️" data-label="コスメ・服" class="salon-preset-btn py-2.5 px-3 rounded-xl bg-blush-50 text-cocoa-800 text-xs font-bold border border-blush-200 transition">
+              🛍️ コスメ・服
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-cocoa-800 mb-1">時間・メモ（任意）</label>
+          <input id="salon-note-input" type="text" placeholder="例：14:00〜 カット＆トリートメント" class="w-full px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-xs text-cocoa-900 focus:outline-none focus:border-blush-500">
+        </div>
+      </div>
+
+      <button id="save-salon-btn" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-blush-500 to-blush-600 text-white text-xs font-bold shadow-md active:scale-95 transition">
+        予定を保存する
+      </button>
+    </div>
+  </div>
+
+  <!-- モーダル3：新しい習慣を追加 -->
+  <div id="add-habit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif text-base font-bold text-cocoa-900">新しい自分磨き習慣を追加</h3>
+        <button id="close-add-habit-modal" type="button" class="p-1.5 text-cocoa-700 hover:text-cocoa-900">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-cocoa-800 mb-1">習慣のタイトル</label>
+          <input id="new-habit-title" type="text" placeholder="例：寝る前にまつ毛美容液を塗る" class="w-full px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-sm text-cocoa-900 focus:outline-none focus:border-blush-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-cocoa-800 mb-1">ひとことメモ・コツ（任意）</label>
+          <input id="new-habit-sub" type="text" placeholder="例：1日10秒だけでOK！" class="w-full px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-xs text-cocoa-900 focus:outline-none focus:border-blush-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-cocoa-800 mb-1">カテゴリ</label>
+          <select id="new-habit-cat" class="w-full px-3.5 py-2.5 rounded-xl bg-blush-50 border border-blush-200 text-xs text-cocoa-900 focus:outline-none focus:border-blush-500">
+            <option value="face">小顔・二重アゴ</option>
+            <option value="body">泡リンパ・体型</option>
+            <option value="parts">指先・ツヤ保湿</option>
+            <option value="mind">仕草・余裕</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="confirm-add-habit-btn" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-blush-500 to-blush-600 text-white text-xs font-bold shadow-md active:scale-95 transition">
+        リストに追加する
+      </button>
+    </div>
+  </div>
+
+  <!-- モーダル4：カレンダーの日付詳細＆美容予定管理 -->
+  <div id="day-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-6 shadow-2xl space-y-3.5 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="detail-date-title" class="font-serif text-base font-bold text-cocoa-900">2026年11月22日の記録</h3>
+        <button id="close-detail-modal" type="button" class="p-1.5 text-cocoa-700 hover:text-cocoa-900">✕</button>
+      </div>
+      <div id="detail-body" class="text-xs text-cocoa-800 space-y-2.5"></div>
+      <div class="flex gap-2 pt-1">
+        <button id="detail-add-salon-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-blush-600 text-white text-xs font-bold">
+          ＋ この日に美容予定を追加
+        </button>
+        <button id="close-detail-btn" type="button" class="px-4 py-2.5 rounded-xl bg-blush-100 text-blush-700 text-xs font-bold">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル5：ホーム画面に追加（アプリ化）ガイド -->
+  <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-cocoa-900/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-white border border-blush-200 p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif text-base font-bold text-cocoa-900">ホーム画面にアプリとして追加</h3>
+        <button id="close-install-modal" type="button" class="p-1.5 text-cocoa-700 hover:text-cocoa-900">✕</button>
+      </div>
+      <p class="text-xs text-cocoa-700 leading-relaxed">
+        スマホのホーム画面に追加すると、可愛い「自分磨きログ」アイコンからワンタップで開けて、記録や予定も自動保存されます！
+      </p>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-2xl bg-blush-50 border border-blush-200 space-y-1.5">
+          <div class="font-bold text-blush-700">iPhone（Safari）の場合</div>
+          <ol class="list-decimal list-inside text-cocoa-800 space-y-1">
+            <li>画面下の<strong>「共有ボタン（□に↑）」</strong>をタップ</li>
+            <li>下にスクロールして<strong>「ホーム画面に追加」</strong>をタップ</li>
+            <li>右上の<strong>「追加」</strong>を押すとアイコンが完成！</li>
+          </ol>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-blush-50 border border-blush-200 space-y-1.5">
+          <div class="font-bold text-champagne-600">Android（Chrome）の場合</div>
+          <ol class="list-decimal list-inside text-cocoa-800 space-y-1">
+            <li>右上の<strong>「︙（メニュー）」</strong>をタップ</li>
+            <li><strong>「ホーム画面に追加」</strong>または<strong>「アプリをインストール」</strong>をタップ</li>
+            <li>確認画面で<strong>「追加」</strong>を押せば完了！</li>
+          </ol>
+        </div>
+      </div>
+
+      <button id="close-install-confirm-btn" type="button" class="w-full py-3 rounded-2xl bg-blush-600 text-white text-xs font-bold">
+        閉じる
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. ホーム画面アイコンの動的生成（Base64ハードコード回避）
+    // ==========================================
+    function generateAppIcon() {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 180;
+        canvas.height = 180;
+        const ctx = canvas.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 180, 180);
+        grad.addColorStop(0, '#f7dce3');
+        grad.addColorStop(1, '#d46b88');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 180, 180);
+
+        // キラキラ星モチーフ（人に見られても上品なデザイン）
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(90, 38);
+        ctx.quadraticCurveTo(95, 85, 142, 90);
+        ctx.quadraticCurveTo(95, 95, 90, 142);
+        ctx.quadraticCurveTo(85, 95, 38, 90);
+        ctx.quadraticCurveTo(85, 85, 90, 38);
+        ctx.fill();
+
+        const link = document.getElementById('apple-touch-icon');
+        if (link) link.href = canvas.toDataURL('image/png');
+      } catch (e) {
+        console.warn('Icon generation skipped:', e);
+      }
+    }
+
+    // ==========================================
+    // 2. 初期データ＆状態管理
+    // ==========================================
+    const STORAGE_KEY = 'ero_kawaii_habit_v1';
+
+    const defaultHabits = [
+      { id: 'h_tongue', title: '舌を上アゴにピタッと意識できた', sub: '勉強・スマホ中の「ながら二重アゴ対策」', cat: 'face', pts: 15 },
+      { id: 'h_chin_stretch', title: '天井向き・舌出しストレッチ10秒', sub: '顎下と首の前側をスッキリ伸ばす', cat: 'face', pts: 10 },
+      { id: 'h_bath_lymph', title: 'お風呂で泡リンパ流し（脚・腕・鎖骨）', sub: '足首→膝裏、手首→脇、耳下→鎖骨へ優しく', cat: 'body', pts: 20 },
+      { id: 'h_protein', title: 'タンパク質＆潤いを意識して食べた', sub: '女性らしいハリを残す美ボディ食事', cat: 'body', pts: 15 },
+      { id: 'h_nail_care', title: 'ハンドクリーム＆ほっそり美指マッサージ', sub: '爪噛み予防＆ネイルが似合う縦長美指へ', cat: 'parts', pts: 15 },
+      { id: 'h_lip_gloss', title: 'リップ保湿・ツヤ感を意識した', sub: 'ちゅるんとした唇と清潔感キープ', cat: 'parts', pts: 10 },
+      { id: 'h_slow_move', title: '動きや仕草を1.2倍ゆっくり丁寧に', sub: '髪を耳にかける・グラスを持つ動作に余裕を', cat: 'mind', pts: 10 },
+      { id: 'h_self_love', title: '頑張った自分を褒めて甘やかした', sub: '完璧主義をオフにして心地よい余裕を作る', cat: 'mind', pts: 15 }
+    ];
+
+    const defaultState = {
+      testMode: true,
+      soundEnabled: true,
+      startWeight: 61.95,
+      targetWeight: 59.8,
+      customMuseImage: null,
+      nailStreak: 0,
+      bestNailStreak: 0,
+      lastNailKeptDate: '',
+      habits: defaultHabits,
+      logs: {},
+      appointments: [] // [{ id, date: 'YYYY-MM-DD', icon: '✂️', label: '美容院', note: '' }]
+    };
+
+    const museTalkLines = [
+      '「綺麗な指先とふんわりした雰囲気、絶対似合うよ✨ 今日も一歩ずつ近づこ？」',
+      '「テスト勉強お疲れさま！下を向きがちだから、今ちょっとだけ舌を上アゴにピタッとしてみよっか♪」',
+      '「指先まで潤ってると、ふとした仕草がぐっと大人っぽくなるよ。ハンドクリーム塗れたかな？」',
+      '「完璧じゃなくて大丈夫。自分のペースで心地よくケアを続けられるのが一番素敵なんだから✨」',
+      '「お風呂で泡を滑らせるだけでも十分すごいケアだよ！頑張り屋さんのあなたを応援してるね🌷」'
+    ];
+    let museTalkIndex = 0;
+
+    let state = loadState();
+    let currentCategory = 'all';
+    let viewDate = new Date();
+    let selectedDetailDate = getTodayKey();
+    let selectedPreset = { icon: '✂️', label: '美容院' };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...defaultState };
+        const parsed = JSON.parse(raw);
+        return {
+          ...defaultState,
+          ...parsed,
+          habits: Array.isArray(parsed.habits) && parsed.habits.length ? parsed.habits : defaultHabits,
+          appointments: Array.isArray(parsed.appointments) ? parsed.appointments : []
+        };
+      } catch (e) {
+        return { ...defaultState };
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Failed to save state:', e);
+      }
+    }
+
+    function getTodayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getTodayLog() {
+      const key = getTodayKey();
+      if (!state.logs[key]) {
+        state.logs[key] = { completedIds: [], weight: null, mood: '', note: '', nailKept: false };
+      }
+      if (!Array.isArray(state.logs[key].completedIds)) {
+        state.logs[key].completedIds = [];
+      }
+      return state.logs[key];
+    }
+
+    // ==========================================
+    // 3. 効果音（Tone.js）
+    // ==========================================
+    async function playBell(isSpecial = false) {
+      if (!state.soundEnabled || typeof Tone === 'undefined') return;
+      try {
+        await Tone.start();
+        const synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.02, decay: 0.25, sustain: 0.1, release: 0.9 }
+        }).toDestination();
+        synth.volume.value = -11;
+
+        if (isSpecial) {
+          synth.triggerAttackRelease(['E5', 'G#5', 'B5', 'E6'], '8n');
+        } else {
+          synth.triggerAttackRelease(['B5', 'E6'], '16n');
+        }
+      } catch (e) {
+        // 音声再生エラーは無視
+      }
+    }
+
+    // ==========================================
+    // 4. ポイント・ランク・連続日数計算
+    // ==========================================
+    const ranks = [
+      { minPt: 0, title: '見習いツヤ肌レディ' },
+      { minPt: 50, title: 'うるおい美指デビュー' },
+      { minPt: 150, title: 'こなれ大人レディ' },
+      { minPt: 300, title: '透明感あふれるお姉さん' },
+      { minPt: 500, title: '憧れのパーフェクトミューズ' }
+    ];
+
+    function calculateStats() {
+      let totalPts = 0;
+      const habitMap = {};
+      state.habits.forEach(h => { habitMap[h.id] = h.pts || 10; });
+
+      Object.values(state.logs).forEach(log => {
+        if (Array.isArray(log.completedIds)) {
+          log.completedIds.forEach(id => {
+            totalPts += (habitMap[id] || 10);
+          });
+        }
+        if (log.nailKept) {
+          totalPts += 10;
+        }
+      });
+
+      // 全体ケア連続日数
+      let streak = 0;
+      const d = new Date();
+      const todayKey = getTodayKey();
+      const todayDone = (state.logs[todayKey]?.completedIds?.length || 0) > 0;
+
+      if (!todayDone) {
+        d.setDate(d.getDate() - 1);
+      }
+
+      while (true) {
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if ((state.logs[key]?.completedIds?.length || 0) > 0) {
+          streak++;
+          d.setDate(d.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      // 美爪キープ連続日数（logsのnailKeptから自動算出）
+      let nailStreak = 0;
+      const nd = new Date();
+      const todayNail = !!state.logs[todayKey]?.nailKept;
+      if (!todayNail) {
+        nd.setDate(nd.getDate() - 1);
+      }
+      while (true) {
+        const key = `${nd.getFullYear()}-${String(nd.getMonth() + 1).padStart(2, '0')}-${String(nd.getDate()).padStart(2, '0')}`;
+        if (state.logs[key]?.nailKept) {
+          nailStreak++;
+          nd.setDate(nd.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      if (nailStreak > (state.bestNailStreak || 0)) {
+        state.bestNailStreak = nailStreak;
+      }
+
+      let currentRank = ranks[0];
+      let nextRank = null;
+      for (let i = 0; i < ranks.length; i++) {
+        if (totalPts >= ranks[i].minPt) {
+          currentRank = ranks[i];
+          nextRank = ranks[i + 1] || null;
+        }
+      }
+
+      return { totalPts, streak, nailStreak, currentRank, nextRank };
+    }
+
+    // ==========================================
+    // 5. UI全体描画
+    // ==========================================
+    function renderAll() {
+      const todayLog = getTodayLog();
+      const { totalPts, streak, nailStreak, currentRank, nextRank } = calculateStats();
+
+      // モード表示
+      const modeIcon = document.getElementById('mode-icon-badge');
+      const modeTitle = document.getElementById('mode-title');
+      const modeTag = document.getElementById('mode-tag');
+      const modeDesc = document.getElementById('mode-desc');
+
+      if (state.testMode) {
+        modeIcon.textContent = '🌿';
+        modeTitle.textContent = 'テスト期間ゆるモード';
+        modeTag.textContent = '1つで花丸';
+        modeDesc.textContent = '今は現状維持＆ながらケアだけで100点満点！';
+      } else {
+        modeIcon.textContent = '✨';
+        modeTitle.textContent = '通常ビューティーモード';
+        modeTag.textContent = '自分磨き強化';
+        modeDesc.textContent = '無理のないペースで理想のシルエット＆ツヤ肌へ！';
+      }
+
+      // 達成リング計算
+      const totalHabits = state.habits.length || 1;
+      const doneCount = todayLog.completedIds.length;
+      const pct = Math.min(100, Math.round((doneCount / totalHabits) * 100));
+      const circumference = 263.89;
+      const offset = circumference - (pct / 100) * circumference;
+
+      document.getElementById('progress-ring-circle').style.strokeDashoffset = offset;
+      document.getElementById('today-percent-text').textContent = `${pct}%`;
+      document.getElementById('today-fraction-text').textContent = `${doneCount}/${totalHabits}`;
+
+      // ランク・連続日数・ポイント
+      document.getElementById('rank-title').textContent = currentRank.title;
+      document.getElementById('streak-days').textContent = streak;
+      document.getElementById('total-points').textContent = totalPts;
+
+      if (nextRank) {
+        const span = nextRank.minPt - currentRank.minPt;
+        const progress = totalPts - currentRank.minPt;
+        const rankPct = Math.min(100, Math.max(0, Math.round((progress / span) * 100)));
+        document.getElementById('next-rank-remain').textContent = `あと ${nextRank.minPt - totalPts} pt`;
+        document.getElementById('rank-progress-bar').style.width = `${rankPct}%`;
+      } else {
+        document.getElementById('next-rank-remain').textContent = '最高ランク到達！';
+        document.getElementById('rank-progress-bar').style.width = '100%';
+      }
+
+      // 美爪キープ連続カウンター
+      document.getElementById('nail-streak-count').textContent = nailStreak;
+      document.getElementById('nail-best-count').textContent = state.bestNailStreak || nailStreak;
+      const nailBtn = document.getElementById('nail-keep-btn');
+      if (todayLog.nailKept) {
+        nailBtn.textContent = '本日キープ済 ✓';
+        nailBtn.className = 'px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-[10px] font-bold shadow-xs transition';
+      } else {
+        nailBtn.textContent = '今日もキープ';
+        nailBtn.className = 'px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold shadow-xs transition active:scale-95';
+      }
+
+      // お姉さんビジュアル切り替え（カスタム画像があればそれを、なければ標準イラストを表示）
+      const customImg = document.getElementById('muse-custom-img');
+      const defaultImg = document.getElementById('muse-default-img');
+      const museResetBtn = document.getElementById('muse-reset-btn');
+      if (state.customMuseImage) {
+        customImg.src = state.customMuseImage;
+        customImg.classList.remove('hidden');
+        defaultImg.classList.add('hidden');
+        museResetBtn.classList.remove('hidden');
+      } else {
+        customImg.classList.add('hidden');
+        defaultImg.classList.remove('hidden');
+        museResetBtn.classList.add('hidden');
+      }
+
+      // 応援メッセージ
+      const cheerEl = document.getElementById('daily-cheer-message');
+      if (doneCount === 0) {
+        cheerEl.textContent = state.testMode
+          ? '「テスト勉強お疲れさま！今日は『舌を上アゴにピタッ』か『ハンドクリーム』の1つだけでもできたら大勝利だよ✨」'
+          : '「まずは1つチェックしてみよっか。小さなツヤと指先のケアが、一番の魅力を作るよ✨」';
+      } else if (pct < 50) {
+        cheerEl.textContent = state.testMode
+          ? `「もう ${doneCount} 個もクリア！テスト期間中に自分磨きまで意識できて本当にえらいよ🌷」`
+          : `「いいスタート！${doneCount} 個達成。今日の自分を着実に可愛くアップデートできてるね✨」`;
+      } else if (pct < 100) {
+        cheerEl.textContent = `「半分以上達成（${doneCount}個）！フェイスラインも指先も、確実に理想の自分に近づいてるよ💄」`;
+      } else {
+        cheerEl.textContent = '「パーフェクト達成おめでとう！！今日のあなたは最高に可愛くて素敵なお姉さんだよ💖」';
+      }
+
+      // 今日の日付ラベル
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+      const nowObj = new Date();
+      document.getElementById('today-date-display').textContent = `${nowObj.getFullYear()}年${nowObj.getMonth() + 1}月${nowObj.getDate()}日(${weekdays[nowObj.getDay()]})`;
+
+      // メモ・体重欄の反映
+      const weightInput = document.getElementById('weight-input');
+      if (todayLog.weight) {
+        weightInput.value = todayLog.weight;
+      }
+      document.getElementById('daily-note-input').value = todayLog.note || '';
+
+      // 最新体重バッジ
+      let latestWeight = null;
+      const sortedDates = Object.keys(state.logs).sort();
+      for (let i = sortedDates.length - 1; i >= 0; i--) {
+        if (state.logs[sortedDates[i]].weight) {
+          latestWeight = parseFloat(state.logs[sortedDates[i]].weight);
+          break;
+        }
+      }
+      const weightBadge = document.getElementById('weight-diff-badge');
+      if (latestWeight) {
+        const diff = (latestWeight - state.startWeight).toFixed(2);
+        const sign = diff > 0 ? `+${diff}` : `${diff}`;
+        weightBadge.textContent = `現在 ${latestWeight.toFixed(2)}kg (${sign}kg)`;
+      } else {
+        weightBadge.textContent = `スタート ${state.startWeight}kg`;
+      }
+
+      // 気分ボタンハイライト
+      document.querySelectorAll('.mood-btn').forEach(btn => {
+        if (btn.dataset.mood === todayLog.mood) {
+          btn.classList.add('bg-blush-200', 'border-blush-500', 'scale-105');
+          btn.classList.remove('bg-white', 'border-blush-200');
+        } else {
+          btn.classList.remove('bg-blush-200', 'border-blush-500', 'scale-105');
+          btn.classList.add('bg-white', 'border-blush-200');
+        }
+      });
+
+      // サウンドアイコン
+      document.getElementById('sound-on-icon').classList.toggle('hidden', !state.soundEnabled);
+      document.getElementById('sound-off-icon').classList.toggle('hidden', state.soundEnabled);
+
+      renderHabitList();
+      renderNextSalonBanner();
+      renderCalendar();
+    }
+
+    // ==========================================
+    // 6. 習慣リスト描画
+    // ==========================================
+    const catLabels = {
+      face: { text: '小顔・二重アゴ', cls: 'bg-rose-100 text-rose-700' },
+      body: { text: '泡リンパ・体型', cls: 'bg-amber-100 text-amber-800' },
+      parts: { text: '指先・ツヤ保湿', cls: 'bg-pink-100 text-pink-700' },
+      mind: { text: '仕草・余裕', cls: 'bg-purple-100 text-purple-700' }
+    };
+
+    function renderHabitList() {
+      const container = document.getElementById('habit-list-container');
+      container.innerHTML = '';
+      const todayLog = getTodayLog();
+
+      const filtered = currentCategory === 'all'
+        ? state.habits
+        : state.habits.filter(h => h.cat === currentCategory);
+
+      filtered.forEach(habit => {
+        const isDone = todayLog.completedIds.includes(habit.id);
+        const badge = catLabels[habit.cat] || catLabels.parts;
+
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-3.5 rounded-2xl border transition cursor-pointer select-none ${
+          isDone
+            ? 'bg-gradient-to-r from-blush-100/90 to-champagne-100/70 border-blush-400/60 shadow-2xs'
+            : 'bg-blush-50/60 hover:bg-blush-100/60 border-blush-200/70'
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition ${
+              isDone ? 'bg-blush-600 border-blush-600 text-white' : 'border-blush-300 bg-white'
+            }">
+              ${isDone ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-xs sm:text-sm font-bold ${isDone ? 'text-blush-800 line-through decoration-blush-400' : 'text-cocoa-900'}">${escapeHtml(habit.title)}</span>
+              </div>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-medium ${badge.cls}">${badge.text}</span>
+                ${habit.sub ? `<span class="text-[11px] text-cocoa-700 truncate">${escapeHtml(habit.sub)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <span class="text-xs font-bold ${isDone ? 'text-blush-600' : 'text-champagne-600'} ml-2 shrink-0">+${habit.pts}pt</span>
+        `;
+
+        row.addEventListener('click', () => {
+          const log = getTodayLog();
+          const idx = log.completedIds.indexOf(habit.id);
+          if (idx >= 0) {
+            log.completedIds.splice(idx, 1);
+          } else {
+            log.completedIds.push(habit.id);
+            const isAllDone = log.completedIds.length === state.habits.length;
+            playBell(isAllDone);
+            showToast(isAllDone ? 'パーフェクト達成！今日も最高に素敵だよ💖' : `「${habit.title}」クリア！+${habit.pts}pt`);
+          }
+          saveState();
+          renderAll();
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    // ==========================================
+    // 7. 美容予定バナー＆カレンダー描画
+    // ==========================================
+    function renderNextSalonBanner() {
+      const banner = document.getElementById('next-salon-banner');
+      const todayKey = getTodayKey();
+      const upcoming = state.appointments
+        .filter(a => a.date >= todayKey)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      if (upcoming.length === 0) {
+        banner.innerHTML = `<span class="text-blush-600 font-bold">美容予定：</span>まだ登録がありません`;
+        return;
+      }
+
+      const next = upcoming[0];
+      const target = new Date(next.date + 'T00:00:00');
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const diffDays = Math.max(0, Math.ceil((target - now) / (1000 * 60 * 60 * 24)));
+      const dayText = diffDays === 0 ? '今日！' : `あと${diffDays}日`;
+      const parts = next.date.split('-');
+
+      banner.innerHTML = `
+        <span class="text-blush-600 font-bold">次回：</span>
+        <span class="font-bold">${Number(parts[1])}/${Number(parts[2])} ${escapeHtml(next.icon)} ${escapeHtml(next.label)}</span>
+        <span class="ml-1 px-1.5 py-0.5 rounded-md bg-blush-200/80 text-blush-800 text-[10px] font-bold">${dayText}</span>
+      `;
+    }
+
+    function renderCalendar() {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      document.getElementById('calendar-month-label').textContent = `${year}年${month + 1}月`;
+
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const todayKey = getTodayKey();
+      const totalHabits = state.habits.length || 1;
+
+      for (let i = 0; i < firstDay; i++) {
+        grid.appendChild(document.createElement('div'));
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const log = state.logs[dateKey];
+        const count = log?.completedIds?.length || 0;
+        const ratio = count / totalHabits;
+        const dayApps = state.appointments.filter(a => a.date === dateKey);
+
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'aspect-square rounded-xl flex flex-col items-center justify-center text-xs relative border transition active:scale-95 ';
+
+        if (count === 0) {
+          cell.className += 'bg-blush-50/70 border-blush-100 text-cocoa-700';
+        } else if (ratio < 0.5) {
+          cell.className += 'bg-blush-200/80 border-blush-300 text-cocoa-900 font-bold';
+        } else if (ratio < 1) {
+          cell.className += 'bg-blush-400 border-blush-500 text-white font-bold';
+        } else {
+          cell.className += 'bg-gradient-to-br from-blush-600 to-champagne-400 border-blush-600 text-white font-bold shadow-xs';
+        }
+
+        if (dateKey === todayKey) {
+          cell.className += ' ring-2 ring-blush-600 ring-offset-1';
+        }
+
+        let badgeHtml = '';
+        if (dayApps.length > 0) {
+          badgeHtml = `<span class="text-[10px] leading-none mt-0.5">${escapeHtml(dayApps[0].icon)}</span>`;
+        } else if (count > 0) {
+          badgeHtml = `<span class="text-[9px] leading-none mt-0.5">${ratio >= 1 ? '💖' : '♡'}</span>`;
+        }
+
+        cell.innerHTML = `<span class="leading-none">${d}</span>${badgeHtml}`;
+        cell.addEventListener('click', () => openDayDetail(dateKey));
+        grid.appendChild(cell);
+      }
+    }
+
+    function openDayDetail(dateKey) {
+      selectedDetailDate = dateKey;
+      const modal = document.getElementById('day-detail-modal');
+      const parts = dateKey.split('-');
+      document.getElementById('detail-date-title').textContent = `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日の記録・予定`;
+
+      const log = state.logs[dateKey];
+      const dayApps = state.appointments.filter(a => a.date === dateKey);
+      const body = document.getElementById('detail-body');
+      let html = '';
+
+      // この日の美容予定（美容院・まつパなど）
+      if (dayApps.length > 0) {
+        html += `<div class="p-3 rounded-2xl bg-blush-100/80 border border-blush-300 space-y-1.5">
+          <div class="font-bold text-blush-800">この日の美容予定</div>`;
+        dayApps.forEach(app => {
+          html += `
+            <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-xl border border-blush-200">
+              <div>
+                <span class="font-bold text-cocoa-900">${escapeHtml(app.icon)} ${escapeHtml(app.label)}</span>
+                ${app.note ? `<div class="text-[11px] text-cocoa-700">${escapeHtml(app.note)}</div>` : ''}
+              </div>
+              <button type="button" data-del-app="${app.id}" class="del-app-btn text-[11px] text-rose-600 hover:underline px-1.5 py-0.5">削除</button>
+            </div>`;
+        });
+        html += `</div>`;
+      }
+
+      if (!log || ((log.completedIds?.length || 0) === 0 && !log.weight && !log.note && !log.nailKept)) {
+        html += `<p class="text-cocoa-700 py-2">この日の自分磨きチェックはまだありません。</p>`;
+      } else {
+        const habitMap = {};
+        state.habits.forEach(h => { habitMap[h.id] = h.title; });
+
+        if (log.nailKept) {
+          html += `<div class="px-2.5 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 font-bold">💅 美爪キープ達成日！</div>`;
+        }
+        if (log.weight || log.mood) {
+          html += `<div class="p-2.5 rounded-xl bg-blush-50 border border-blush-200 flex gap-3">`;
+          if (log.weight) html += `<span>体重: <strong>${log.weight}kg</strong></span>`;
+          if (log.mood) html += `<span>気分: <strong>${log.mood}</strong></span>`;
+          html += `</div>`;
+        }
+        if (log.note) {
+          html += `<div class="p-2.5 rounded-xl bg-champagne-100/70 border border-champagne-200">メモ: ${escapeHtml(log.note)}</div>`;
+        }
+        if (log.completedIds?.length) {
+          html += `<div class="font-bold text-blush-700 pt-1">達成したケア（${log.completedIds.length}個）</div><ul class="space-y-1">`;
+          log.completedIds.forEach(id => {
+            html += `<li class="flex items-center gap-1.5"><span>🌸</span><span>${escapeHtml(habitMap[id] || '自分磨きケア')}</span></li>`;
+          });
+          html += `</ul>`;
+        }
+      }
+
+      body.innerHTML = html;
+
+      // 美容予定削除イベント
+      body.querySelectorAll('.del-app-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.delApp;
+          state.appointments = state.appointments.filter(a => a.id !== id);
+          saveState();
+          renderAll();
+          openDayDetail(dateKey);
+          showToast('美容予定を削除しました');
+        });
+      });
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    // ==========================================
+    // 8. スマホカレンダー同期（.icsファイル出力）
+    // ==========================================
+    function exportAppointmentsToICS() {
+      if (!state.appointments || state.appointments.length === 0) {
+        showToast('先に「＋ 予定追加」から美容院やまつパの予定を入れてね！');
+        return;
+      }
+
+      const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Lueur Beauty Routine//JP',
+        'CALSCALE:GREGORIAN'
+      ];
+
+      state.appointments.forEach(app => {
+        const ymd = app.date.replace(/-/g, '');
+        const dt = new Date(app.date + 'T00:00:00');
+        dt.setDate(dt.getDate() + 1);
+        const nextYmd = `${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, '0')}${String(dt.getDate()).padStart(2, '0')}`;
+        const summary = `${app.icon} ${app.label}${app.note ? ' (' + app.note + ')' : ''}`;
+
+        lines.push(
+          'BEGIN:VEVENT',
+          `UID:${app.id}@lueur-beauty`,
+          `DTSTAMP:${ymd}T090000Z`,
+          `DTSTART;VALUE=DATE:${ymd}`,
+          `DTEND;VALUE=DATE:${nextYmd}`,
+          `SUMMARY:${summary}`,
+          `DESCRIPTION:まいにち自分磨きアプリから同期された美容予定`,
+          'END:VEVENT'
+        );
+      });
+
+      lines.push('END:VCALENDAR');
+      const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'beauty_schedule.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('カレンダー同期ファイル(.ics)を作成しました！開くとカレンダーに追加されます📅');
+    }
+
+    // ==========================================
+    // 9. ユーティリティ＆イベント設定
+    // ==========================================
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    let toastTimer = null;
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-text').textContent = text;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      generateAppIcon();
+      renderAll();
+
+      // お姉さんイラストタップでセリフ変化
+      document.getElementById('muse-portrait-btn').addEventListener('click', () => {
+        museTalkIndex = (museTalkIndex + 1) % museTalkLines.length;
+        document.getElementById('daily-cheer-message').textContent = museTalkLines[museTalkIndex];
+        playBell(false);
+      });
+
+      // 写真を標準イラストに戻す
+      document.getElementById('muse-reset-btn').addEventListener('click', () => {
+        state.customMuseImage = null;
+        saveState();
+        renderAll();
+        showToast('最初のイラストに戻しました✨');
+      });
+
+      // スマホ写真ライブラリから画像変更
+      document.getElementById('muse-image-upload').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const maxW = 420;
+              const scale = Math.min(1, maxW / img.width);
+              const canvas = document.createElement('canvas');
+              canvas.width = Math.round(img.width * scale);
+              canvas.height = Math.round(img.height * scale);
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+              state.customMuseImage = canvas.toDataURL('image/jpeg', 0.85);
+              saveState();
+              renderAll();
+              playBell(true);
+              showToast('画像をアプリに保存しました✨');
+            } catch (err) {
+              showToast('画像の保存に失敗しました。別の画像でお試しください');
+            }
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      });
+
+      // 美爪キープ連続ボタン
+      document.getElementById('nail-keep-btn').addEventListener('click', () => {
+        const log = getTodayLog();
+        log.nailKept = !log.nailKept;
+        saveState();
+        renderAll();
+        if (log.nailKept) {
+          playBell(true);
+          showToast('今日も美爪キープ達成！+10pt💅');
+        }
+      });
+
+      document.getElementById('nail-reset-btn').addEventListener('click', () => {
+        const log = getTodayLog();
+        log.nailKept = false;
+        saveState();
+        renderAll();
+        showToast('今日のキープをリセットしました。また今からスタートしよう！');
+      });
+
+      // ほっそり美指マッサージガイドモーダル
+      const handModal = document.getElementById('hand-guide-modal');
+      document.getElementById('open-hand-guide-btn').addEventListener('click', () => {
+        handModal.classList.remove('hidden');
+        handModal.classList.add('flex');
+      });
+      [document.getElementById('close-hand-guide-modal'), document.getElementById('close-hand-guide-btn2')].forEach(btn => {
+        btn.addEventListener('click', () => {
+          handModal.classList.add('hidden');
+          handModal.classList.remove('flex');
+        });
+      });
+      document.getElementById('complete-hand-massage-btn').addEventListener('click', () => {
+        const log = getTodayLog();
+        if (!log.completedIds.includes('h_nail_care')) {
+          log.completedIds.push('h_nail_care');
+        }
+        saveState();
+        renderAll();
+        handModal.classList.add('hidden');
+        handModal.classList.remove('flex');
+        playBell(true);
+        showToast('ほっそり美指マッサージ完了！+15pt🤲✨');
+      });
+
+      // 美容予定モーダル
+      const salonModal = document.getElementById('salon-modal');
+      function openSalonModal(defaultDateStr) {
+        document.getElementById('salon-date-input').value = defaultDateStr || getTodayKey();
+        document.getElementById('salon-note-input').value = '';
+        salonModal.classList.remove('hidden');
+        salonModal.classList.add('flex');
+      }
+
+      document.getElementById('open-salon-modal-btn').addEventListener('click', () => openSalonModal(getTodayKey()));
+      document.getElementById('detail-add-salon-btn').addEventListener('click', () => {
+        document.getElementById('day-detail-modal').classList.add('hidden');
+        document.getElementById('day-detail-modal').classList.remove('flex');
+        openSalonModal(selectedDetailDate);
+      });
+      document.getElementById('close-salon-modal').addEventListener('click', () => {
+        salonModal.classList.add('hidden');
+        salonModal.classList.remove('flex');
+      });
+
+      document.querySelectorAll('.salon-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.salon-preset-btn').forEach(b => {
+            b.className = 'salon-preset-btn py-2.5 px-3 rounded-xl bg-blush-50 text-cocoa-800 text-xs font-bold border border-blush-200 transition';
+          });
+          btn.className = 'salon-preset-btn active py-2.5 px-3 rounded-xl bg-blush-600 text-white text-xs font-bold border border-blush-600 transition';
+          selectedPreset = { icon: btn.dataset.icon, label: btn.dataset.label };
+        });
+      });
+
+      document.getElementById('save-salon-btn').addEventListener('click', () => {
+        const dateVal = document.getElementById('salon-date-input').value;
+        const noteVal = document.getElementById('salon-note-input').value.trim();
+        if (!dateVal) {
+          showToast('日付を選択してください');
+          return;
+        }
+        state.appointments.push({
+          id: 'app_' + Date.now(),
+          date: dateVal,
+          icon: selectedPreset.icon,
+          label: selectedPreset.label,
+          note: noteVal
+        });
+        saveState();
+        renderAll();
+        salonModal.classList.add('hidden');
+        salonModal.classList.remove('flex');
+        playBell(true);
+        showToast(`${selectedPreset.icon} ${selectedPreset.label}の予定を登録しました！`);
+      });
+
+      // カレンダー同期（.ics）ボタン
+      document.getElementById('export-ics-btn').addEventListener('click', exportAppointmentsToICS);
+
+      // モード切替
+      document.getElementById('toggle-mode-btn').addEventListener('click', () => {
+        state.testMode = !state.testMode;
+        saveState();
+        renderAll();
+        showToast(state.testMode ? 'テスト期間ゆるモードに切り替えました🌿' : '通常ビューティーモードに切り替えました✨');
+      });
+
+      // カテゴリタブ切替
+      document.querySelectorAll('.cat-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          currentCategory = tab.dataset.cat;
+          document.querySelectorAll('.cat-tab').forEach(t => {
+            if (t.dataset.cat === currentCategory) {
+              t.className = 'cat-tab active px-3 py-1.5 rounded-full text-xs font-bold bg-blush-600 text-white shrink-0 transition';
+            } else {
+              t.className = 'cat-tab px-3 py-1.5 rounded-full text-xs font-medium bg-blush-100 text-cocoa-700 hover:bg-blush-200 shrink-0 transition';
+            }
+          });
+          renderHabitList();
+        });
+      });
+
+      // 気分ボタン
+      document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const log = getTodayLog();
+          log.mood = btn.dataset.mood;
+          saveState();
+          renderAll();
+          playBell(false);
+        });
+      });
+
+      // 体重＆メモ保存
+      document.getElementById('save-memo-btn').addEventListener('click', () => {
+        const log = getTodayLog();
+        const w = parseFloat(document.getElementById('weight-input').value);
+        if (!isNaN(w) && w > 20 && w < 200) {
+          log.weight = w;
+        }
+        log.note = document.getElementById('daily-note-input').value.trim();
+        saveState();
+        renderAll();
+        playBell(false);
+        showToast('ボディ＆ツヤメモを保存しました🌷');
+      });
+
+      // カレンダー月移動
+      document.getElementById('prev-month-btn').addEventListener('click', () => {
+        viewDate.setMonth(viewDate.getMonth() - 1);
+        renderCalendar();
+      });
+      document.getElementById('next-month-btn').addEventListener('click', () => {
+        viewDate.setMonth(viewDate.getMonth() + 1);
+        renderCalendar();
+      });
+
+      // サウンド切替
+      document.getElementById('sound-toggle-btn').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        saveState();
+        renderAll();
+        showToast(state.soundEnabled ? '効果音をオンにしました' : '効果音をオフにしました');
+      });
+
+      // 習慣追加モーダル
+      const addModal = document.getElementById('add-habit-modal');
+      document.getElementById('open-add-habit-btn').addEventListener('click', () => {
+        addModal.classList.remove('hidden');
+        addModal.classList.add('flex');
+      });
+      document.getElementById('close-add-habit-modal').addEventListener('click', () => {
+        addModal.classList.add('hidden');
+        addModal.classList.remove('flex');
+      });
+      document.getElementById('confirm-add-habit-btn').addEventListener('click', () => {
+        const title = document.getElementById('new-habit-title').value.trim();
+        const sub = document.getElementById('new-habit-sub').value.trim();
+        const cat = document.getElementById('new-habit-cat').value;
+        if (!title) {
+          showToast('習慣のタイトルを入力してね');
+          return;
+        }
+        state.habits.push({
+          id: 'h_' + Date.now(),
+          title,
+          sub,
+          cat,
+          pts: 15
+        });
+        document.getElementById('new-habit-title').value = '';
+        document.getElementById('new-habit-sub').value = '';
+        saveState();
+        renderAll();
+        addModal.classList.add('hidden');
+        addModal.classList.remove('flex');
+        showToast('新しい自分磨き習慣を追加しました✨');
+      });
+
+      // 日付詳細モーダル閉じる
+      const detailModal = document.getElementById('day-detail-modal');
+      [document.getElementById('close-detail-modal'), document.getElementById('close-detail-btn')].forEach(el => {
+        el.addEventListener('click', () => {
+          detailModal.classList.add('hidden');
+          detailModal.classList.remove('flex');
+        });
+      });
+
+      // アプリ化ガイドモーダル
+      const installModal = document.getElementById('install-modal');
+      document.getElementById('install-guide-btn').addEventListener('click', () => {
+        installModal.classList.remove('hidden');
+        installModal.classList.add('flex');
+      });
+      [document.getElementById('close-install-modal'), document.getElementById('close-install-confirm-btn')].forEach(el => {
+        el.addEventListener('click', () => {
+          installModal.classList.add('hidden');
+          installModal.classList.remove('flex');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
