@@ -1012,9 +1012,9 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="text-xs sm:text-sm font-bold ${isDone ? 'text-blush-800 line-through decoration-blush-400' : 'text-cocoa-900'}">${escapeHtml(habit.title)}</span>
               </div>
-              <div class="flex items-center gap-1.5 mt-1">
-                <span class="text-[10px] px-2 py-0.5 rounded-full font-medium ${badge.cls}">${badge.text}</span>
-                ${habit.sub ? `<span class="text-[11px] text-cocoa-700 truncate">${escapeHtml(habit.sub)}</span>` : ''}
+              <div class="mt-1">
+                <span class="inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${badge.cls}">${badge.text}</span>
+                ${habit.sub ? `<p class="text-[11px] text-cocoa-700 leading-snug break-words mt-1">${escapeHtml(habit.sub)}</p>` : ''}
               </div>
             </div>
           </div>
