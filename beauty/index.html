@@ -8,7 +8,11 @@
   <meta name="apple-mobile-web-app-title" content="自分磨きログ">
   <meta name="theme-color" content="#fdf6f7">
   <title>Lueur Beauty - まいにち自分磨き</title>
-  <link id="apple-touch-icon" rel="apple-touch-icon" href="">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="自分磨きログ">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <link rel="preload" as="image" href="./muse.webp">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
@@ -1268,8 +1272,14 @@
       }, 2800);
     }
 
+    // 自分磨きログ専用のService Worker（/beauty/ 内だけを担当）
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
+      });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
-      generateAppIcon();
       renderAll();
 
       // お姉さんイラストタップでセリフ変化
