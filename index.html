@@ -389,10 +389,16 @@ class="w-full py-2.5 px-3.5 rounded-2xl bg-amber-300 hover:bg-amber-200 text-sla
 <span id="active-goal-indicator" class="text-[11px] font-bold text-amber-200 truncate">
 👉「✈️ 旅行貯金」へ貯金
 </span>
+<div class="flex items-center gap-1.5 shrink-0">
+<button type="button" onclick="openWithdrawModal()"
+class="text-xs bg-white/20 text-white font-bold px-2.5 py-1.5 rounded-xl btn-press">
+− 引き出す
+</button>
 <button type="button" onclick="openCustomSaveModal()"
-class="text-xs bg-white text-slate-800 font-bold px-3 py-1.5 rounded-xl shadow-sm shrink-0 btn-press">
+class="text-xs bg-white text-slate-800 font-bold px-3 py-1.5 rounded-xl shadow-sm btn-press">
 ＋ 自由に入力
 </button>
+</div>
 </div>
 <div id="quick-save-buttons" class="grid grid-cols-3 gap-2"></div>
 </div>
@@ -841,6 +847,33 @@ class="flex-1 py-3.5 rounded-2xl theme-brand-bg text-white font-bold text-sm sha
 </div>
 </div>
 <!-- モーダル5: 貯金目標の追加・編集モーダル -->
+<div id="modal-withdraw" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-end sm:items-center justify-center p-4">
+<div class="theme-card w-full max-w-md rounded-3xl p-5 shadow-2xl border space-y-4">
+<div class="flex items-center justify-between">
+<div><h3 id="withdraw-modal-title" class="text-base font-bold">貯金から引き出す</h3><p class="text-xs theme-text-sub">いま貯まっている額: <strong id="withdraw-modal-saved" class="theme-brand-text font-num"></strong></p></div>
+<button type="button" onclick="closeModal('modal-withdraw')" class="p-2 rounded-full theme-sub-box theme-text-sub">✕</button>
+</div>
+<div class="grid grid-cols-4 gap-2">
+<button type="button" onclick="setWithdrawAmount(1000)" class="py-2 rounded-xl theme-sub-box border text-xs font-bold font-num btn-press">¥1,000</button>
+<button type="button" onclick="setWithdrawAmount(3000)" class="py-2 rounded-xl theme-sub-box border text-xs font-bold font-num btn-press">¥3,000</button>
+<button type="button" onclick="setWithdrawAmount(5000)" class="py-2 rounded-xl theme-sub-box border text-xs font-bold font-num btn-press">¥5,000</button>
+<button type="button" onclick="setWithdrawAmount('all')" class="py-2 rounded-xl theme-sub-box border text-xs font-bold btn-press">全額</button>
+</div>
+<div>
+<label for="input-withdraw-amount" class="block text-xs font-bold theme-text-sub mb-1">引き出す金額（円）</label>
+<div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 theme-text-muted font-bold">¥</span><input type="number" id="input-withdraw-amount" inputmode="numeric" placeholder="例: 3000" class="w-full pl-8 pr-4 py-3 rounded-xl border theme-input text-lg font-bold font-num focus:outline-none"></div>
+</div>
+<div>
+<label for="input-withdraw-memo" class="block text-xs font-bold theme-text-sub mb-1">メモ（任意）</label>
+<input type="text" id="input-withdraw-memo" placeholder="例: 旅行の新幹線代、急な出費" class="w-full px-3.5 py-2.5 rounded-xl border theme-input text-sm focus:outline-none">
+</div>
+<label class="flex items-center justify-between gap-3 theme-sub-box border rounded-2xl p-3 cursor-pointer">
+<span><span class="block text-xs font-bold">🏦 預金残高からも引く</span><span id="withdraw-bank-hint" class="block text-[10px] theme-text-sub mt-0.5"></span></span>
+<input type="checkbox" id="input-withdraw-from-bank" onchange="updateWithdrawBankHint()" class="w-5 h-5 shrink-0 accent-rose-500">
+</label>
+<button type="button" onclick="submitWithdraw()" class="w-full py-3.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm shadow-md btn-press">この金額を引き出す</button>
+</div>
+</div>
 <div id="modal-goal-form" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-end sm:items-center justify-center p-4">
 <div class="theme-card w-full max-w-md rounded-3xl p-5 shadow-2xl border space-y-4">
 <div class="flex items-center justify-between">
@@ -1217,7 +1250,8 @@ const HIST_STYLE = {
 save: { icon: '🐷', sign: '+', color: 'var(--brand-text)', tag: '貯金' },
 spend: { icon: '💸', sign: '−', color: '#e11d48', tag: '支出' },
 deposit: { icon: '🏦', sign: '+', color: 'var(--accent-free)', tag: '入金' },
-handover: { icon: '🤝', sign: '−', color: '#e11d48', tag: '受け渡し' }
+handover: { icon: '🤝', sign: '−', color: '#e11d48', tag: '受け渡し' },
+withdraw: { icon: '👛', sign: '−', color: '#e11d48', tag: '引き出し' }
 };
 function historyRow(h, withDelete) {
 const s = HIST_STYLE[h.type] || HIST_STYLE.save;
@@ -1255,8 +1289,9 @@ return `<div class="theme-card rounded-2xl p-3.5 shadow-sm border space-y-2.5" s
 <span class="text-sm font-extrabold font-num theme-brand-text shrink-0">${goalPct(g)}%</span>
 </div>
 <div class="w-full h-2 rounded-full theme-sub-box overflow-hidden"><div class="h-full rounded-full theme-brand-bg" style="width:${goalPct(g)}%"></div></div>
-<div class="grid grid-cols-2 gap-2">
-<button type="button" onclick="setActiveGoal('${g.id}');switchTab('home')" class="py-2 rounded-xl text-xs font-bold btn-press ${act ? 'theme-brand-bg text-white' : 'theme-brand-soft border'}">${act ? '✓ 貯金先に選択中' : '貯金先にする'}</button>
+<div class="grid grid-cols-3 gap-2">
+<button type="button" onclick="setActiveGoal('${g.id}');switchTab('home')" class="py-2 rounded-xl text-xs font-bold btn-press ${act ? 'theme-brand-bg text-white' : 'theme-brand-soft border'}">${act ? '✓ 貯金先' : '貯金先にする'}</button>
+<button type="button" onclick="openWithdrawModal('${g.id}')" class="py-2 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/25 text-xs font-bold btn-press">− 引き出す</button>
 <button type="button" onclick="openGoalFormModal('${g.id}')" class="py-2 rounded-xl theme-sub-box border text-xs font-bold theme-text-sub btn-press">✏️ 編集</button>
 </div>
 </div>`;
@@ -1352,6 +1387,37 @@ openModal('modal-spend');
 function updateSpendBankHint() {
 $('spend-bank-hint').textContent = $('input-spend-from-bank').checked ? 'カード・口座払い：予算と預金の両方から引きます' : '引き出した現金で払った：予算からだけ引きます';
 }
+let withdrawGoalId = null;
+function openWithdrawModal(id) {
+const g = id ? state.goals.find(x => x.id === id) : activeGoal();
+if (!g) { showToast('貯金項目がありません', 'error'); return; }
+if (g.savedAmount <= 0) { showToast(`「${g.title}」にはまだお金が貯まっていません`, 'info'); return; }
+withdrawGoalId = g.id;
+$('withdraw-modal-title').textContent = `${g.icon} ${g.title}から引き出す`;
+$('withdraw-modal-saved').textContent = yen(g.savedAmount);
+$('input-withdraw-amount').value = ''; $('input-withdraw-memo').value = '';
+$('input-withdraw-from-bank').checked = !!state.withdrawFromBank; updateWithdrawBankHint();
+openModal('modal-withdraw');
+}
+function setWithdrawAmount(n) {
+const g = state.goals.find(x => x.id === withdrawGoalId); if (!g) return;
+$('input-withdraw-amount').value = n === 'all' ? g.savedAmount : Math.min(n, g.savedAmount);
+}
+function updateWithdrawBankHint() {
+$('withdraw-bank-hint').textContent = $('input-withdraw-from-bank').checked ? '口座から下ろした・もう使った：貯金と預金の両方から引きます' : '自由費に戻す：貯金だけ減って、そのぶん自由費が増えます';
+}
+function submitWithdraw() {
+const g = state.goals.find(x => x.id === withdrawGoalId); const amt = parseAmount('input-withdraw-amount');
+if (!g) return; if (!amt) { showToast('金額を入力してください', 'error'); return; }
+if (amt > g.savedAmount) { showToast(`貯まっている額（${yen(g.savedAmount)}）より多くは引き出せません`, 'error'); return; }
+const fromBank = $('input-withdraw-from-bank').checked;
+state.withdrawFromBank = fromBank;
+g.savedAmount -= amt; if (fromBank) state.bankBalance -= amt;
+const memo = $('input-withdraw-memo').value.trim();
+state.history.unshift({ id: uid('h'), type: 'withdraw', title: `${g.icon} ${g.title}から引き出し${memo ? '（' + memo + '）' : ''}${fromBank ? '' : '・自由費へ'}`, amount: amt, date: nowLabel(), goalId: g.id, budgetId: null, fromBank });
+saveState(); renderAll(); closeModal('modal-withdraw');
+showToast(`💸 ${g.title}から ${yen(amt)} 引き出しました`);
+}
 function setSpendAmount(n) { $('input-spend-amount').value = n; }
 function submitSpend() {
 const b = state.budgets.find(x => x.id === spendBudgetId); const amt = parseAmount('input-spend-amount');
@@ -1370,6 +1436,7 @@ askConfirm('🗑️', 'この記録を取り消す？', `「${h.title}」${yen(h
 if (h.type === 'save') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount = Math.max(0, g.savedAmount - h.amount); }
 else if (h.type === 'spend') { const b = state.budgets.find(x => x.id === h.budgetId); if (b) b.spent = Math.max(0, b.spent - h.amount); if (h.fromBank !== false) state.bankBalance += h.amount; }
 else if (h.type === 'deposit') { state.bankBalance -= h.amount; }
+else if (h.type === 'withdraw') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount += h.amount; if (h.fromBank) state.bankBalance += h.amount; }
 else if (h.type === 'handover') { const g = state.goals.find(x => x.id === h.goalId); if (g) g.savedAmount += h.amount; state.bankBalance += h.amount; }
 state.history = state.history.filter(x => x.id !== id);
 saveState(); renderAll(); showToast('記録を取り消しました', 'info');
